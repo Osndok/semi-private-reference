@@ -26,18 +26,35 @@ class Spr1FragmentTest extends TestCase
 		super.setUp();
 
 		BYTES = Hex.decodeHex(HEX.toCharArray());
-
-		final
-		Spr1Fragment spr1Fragment=new Spr1Fragment(BYTES);
 	}
 
 	public
 	void testGetPublicString() throws Exception
 	{
-		final
-		Spr1Fragment spr1Fragment=new Spr1Fragment(BYTES);
+		Spr1Fragment s=new Spr1Fragment(BYTES);
+		{
+			assertEquals(s.getPublicString(), EXPECTED_BASE64);
+		}
 
-		assertEquals(spr1Fragment.getPublicString(), EXPECTED_BASE64);
+		s=new Spr1Fragment(EXPECTED_BASE64);
+		{
+			assertEquals(s.getPublicString(), EXPECTED_BASE64);
+		}
+
+		s=new Spr1Fragment("spr1-"+EXPECTED_BASE64);
+		{
+			assertEquals(s.getPublicString(), EXPECTED_BASE64);
+		}
+
+		s=new Spr1Fragment(EXPECTED_BASE64+"NOISE");
+		{
+			assertEquals(s.getPublicString(), EXPECTED_BASE64);
+		}
+
+		s=new Spr1Fragment("spr1-"+EXPECTED_BASE64+"NOISE");
+		{
+			assertEquals(s.getPublicString(), EXPECTED_BASE64);
+		}
 	}
 
 	public
