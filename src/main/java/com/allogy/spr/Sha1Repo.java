@@ -3,6 +3,7 @@ package com.allogy.spr;
 import javax.module.CommandLineOption;
 import javax.module.CommandLineTool;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -58,6 +59,8 @@ class Sha1Repo
 
 		final
 		File retval = getDestination(hash);
+
+		System.err.println("GET: "+retval);
 
 		if (retval.exists())
 		{
@@ -146,7 +149,7 @@ class Sha1Repo
 		}
 
 		final
-		File tempFile=new File(dir, "DELETE_ME."+sha1.hashCode());
+		File tempFile=createTempFile();
 
 		boolean success=false;
 
@@ -183,27 +186,7 @@ class Sha1Repo
 		final
 		byte[] sha1Hash=sha1.digest();
 
-		final
-		File destination=getDestination(sha1Hash);
-		{
-			if (destination.exists())
-			{
-				//TODO: issue a warning? verify the file? clobber non-matching files?
-				return sha1Hash;
-			}
-
-			destination.getParentFile().mkdirs();
-		}
-
-		if (tempFile.renameTo(destination))
-		{
-			return sha1Hash;
-		}
-		else
-		{
-			tempFile.delete();
-			throw new IOException("unable to move-after-write: mv "+tempFile+" "+destination);
-		}
+		return absorb(tempFile, sha1Hash);
 	}
 
 	/**
@@ -247,7 +230,7 @@ class Sha1Repo
 		{
 			if (destination.exists())
 			{
-				//TODO: issue a warning? verify the file? clobber non-matching files?
+				System.err.println("EXISTS: "+destination);
 				return sha1Hash;
 			}
 
@@ -255,7 +238,7 @@ class Sha1Repo
 		}
 
 		final
-		File tempFile=new File(destination.getParent(), destination.getName()+".part."+sha1.hashCode());
+		File tempFile=new File(destination.getParent(), destination.getName()+".part."+sha1.hashCode());;
 
 		boolean success=false;
 
@@ -273,12 +256,14 @@ class Sha1Repo
 			{
 				//Note order... in case close() throws an exception.
 				tempFile.delete();
-				outputStream.close();
 			}
+
+			outputStream.close();
 		}
 
 		if (tempFile.renameTo(destination))
 		{
+			System.err.println("PUT: "+destination);
 			return sha1Hash;
 		}
 		else
@@ -316,5 +301,70 @@ class Sha1Repo
 		}
 
 		return sha1.digest(bytes);
+	}
+
+	public static
+	byte[] getSha1Sum(File file) throws IOException
+	{
+		final
+		MessageDigest sha1 = sha1Source.get();
+		{
+			sha1.reset();
+		}
+
+		final
+		FileInputStream in=new FileInputStream(file);
+
+		try
+		{
+			final
+			byte[] buffer = new byte[4096];
+
+			int numBytes;
+
+			while ((numBytes = in.read(buffer)) > 0)
+			{
+				sha1.update(buffer, 0, numBytes);
+			}
+		}
+		finally
+		{
+			in.close();
+		}
+
+		return sha1.digest();
+	}
+
+	public
+	File createTempFile()
+	{
+		return new File(dir, "DELETE_ME."+this.hashCode()+'-'+Thread.currentThread().hashCode());
+	}
+
+	public
+	byte[] absorb(File tempFile, byte[] sha1Hash) throws IOException
+	{
+		final
+		File destination=getDestination(sha1Hash);
+		{
+			if (destination.exists())
+			{
+				System.err.println("EXISTS: "+destination);
+				tempFile.delete();
+				return sha1Hash;
+			}
+
+			destination.getParentFile().mkdirs();
+		}
+
+		if (tempFile.renameTo(destination))
+		{
+			return sha1Hash;
+		}
+		else
+		{
+			tempFile.delete();
+			throw new IOException("unable to move-after-write: mv "+tempFile+" "+destination);
+		}
 	}
 }

@@ -1,16 +1,18 @@
 package com.allogy.spr;
 
-import javax.module.CommandLineOption;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.concurrent.Callable;
 
 /**
  * Created by robert on 2015-10-25 02:11.
  */
 public
-class Spr1Put implements Callable<String>
+class Spr1Put implements Callable<Spr1Key>
 {
 	private final
 	Sha1Repo sha1Repo;
@@ -18,6 +20,11 @@ class Spr1Put implements Callable<String>
 	public
 	Spr1Put(File repoDir) throws IOException
 	{
+		if (!repoDir.exists())
+		{
+			repoDir.mkdir();
+		}
+
 		sha1Repo = new Sha1Repo(repoDir);
 	}
 
@@ -31,17 +38,16 @@ class Spr1Put implements Callable<String>
 	}
 
 	public
-	InputStream inputStream;
+	File file;
 
-	@CommandLineOption(_long = "file", _short = 'f')
 	public
-	void setInputStream(InputStream inputStream)
+	void setFile(File file)
 	{
-		this.inputStream=inputStream;
+		this.file = file;
 	}
 
 	public
-	String call() throws Exception
+	Spr1Key call() throws Exception
 	{
 		final
 		byte[] privateHash;
@@ -49,11 +55,11 @@ class Spr1Put implements Callable<String>
 		final
 		byte[] publicHash;
 		{
-			if (bytes==null)
+			if (bytes == null)
 			{
-				if (inputStream==null)
+				if (file == null)
 				{
-					throw new Exception("no bytes on inputStream specified");
+					throw new Exception("no bytes or file specified to put");
 				}
 				else
 				{
@@ -62,9 +68,28 @@ class Spr1Put implements Callable<String>
 					//hash the encrypted file
 					//store encrypted bytes in sha1repo
 					//return the spr1 reference
-					//TODO: implement me
-					privateHash=null;
-					publicHash=null;
+					privateHash = Sha1Repo.getSha1Sum(file);
+
+					final
+					File tempFile = sha1Repo.createTempFile();
+
+					final
+					Spr1Encryption.StreamResult streamResult;
+					{
+						final
+						FileInputStream fis = new FileInputStream(file);
+
+						final
+						FileOutputStream fos = new FileOutputStream(tempFile);
+
+						streamResult = new Spr1Encryption(privateHash).encrypt(fis, fos);
+					}
+
+					assert (Arrays.equals(privateHash, streamResult.getPreHash()));
+
+					publicHash = streamResult.getPostHash();
+
+					sha1Repo.absorb(tempFile, publicHash);
 				}
 			}
 			else
@@ -78,6 +103,6 @@ class Spr1Put implements Callable<String>
 			}
 		}
 
-		return new Spr1Key(publicHash, privateHash).toString();
+		return new Spr1Key(publicHash, privateHash);
 	}
 }

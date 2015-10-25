@@ -2,14 +2,18 @@ package com.allogy.spr;
 
 import junit.framework.TestCase;
 import org.apache.commons.codec.binary.Hex;
+import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 import java.util.Arrays;
 
 /**
  * Created by robert on 2015-10-25 02:01.
  */
+@Test
 public
-class Spr1KeyTest extends TestCase
+class Spr1KeyTest extends Assert
 {
 	private static final
 	String PUBLIC_HEX="b7e23ec29af22b0b4e41da31e868d57226121c84";
@@ -35,10 +39,11 @@ class Spr1KeyTest extends TestCase
 	private
 	String withoutPrefix;
 
+	@BeforeClass
 	public
 	void setUp() throws Exception
 	{
-		super.setUp();
+		//super.setUp();
 
 		PUBLIC_BYTES = Hex.decodeHex(PUBLIC_HEX.toCharArray());
 		PRIVATE_BYTES = Hex.decodeHex(PRIVATE_HEX.toCharArray());
@@ -47,6 +52,7 @@ class Spr1KeyTest extends TestCase
 		withoutPrefix=PUBLIC_B64+PRIVATE_B64;
 	}
 
+	@Test
 	public
 	void testGetPrivateString() throws Exception
 	{
@@ -76,6 +82,7 @@ class Spr1KeyTest extends TestCase
 		}
 	}
 
+	@Test
 	public
 	void testGetPrivateBytes() throws Exception
 	{
@@ -105,6 +112,7 @@ class Spr1KeyTest extends TestCase
 		}
 	}
 
+	@Test
 	public
 	void testToString() throws Exception
 	{

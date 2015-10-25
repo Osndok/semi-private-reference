@@ -15,15 +15,16 @@
 	<url>https://redmine.allogy.com/projects/spr</url>
 
 	<description>
-		Semi-private-reference is a specification and reference implementation for light privacy protection
+		Semi-private-reference is a specification and reference implementation for a simple wrapper that
+		can be deployed around a SHA-1 content-addressable storage system. It provides decent privacy protection
 		that follows the "trust no one" pattern with some very interesting privacy and technical trade-offs.
 
 		On the one hand, it might allow for an entire storage server of personal and corporate secrets to be both
 		"deduplicated", "open to the public", and "accessible without encryption" without compromising security
 		at all. And on the other hand, storage of "readily obtainable but illegal files" (i.e. warez) would be
 		even easier to scan for by checking the filenames only. In general, it provides strong protection for
-		files you create or keep to your self/group, and an effective guard against your cloud-storage-provider
-		from snooping into your data.
+		files you create or keep to your self (or group), and an effective guard against those that have read-access
+		to the underlying storage mechanism (such as other users of the system or your cloud-storage-provider).
 
 		When a file (or stream of bytes) is fed into a content-addressable storage system, SPR first hashes the
 		original data to derive an unknowable symmetric encryption key, then it passes the encrypted data down
@@ -39,22 +40,47 @@
 
 	<dependencies>
 
+		<!-- For annotations concerning command line utility, easy to kern out if undesired -->
 		<dependency>
 			<groupId>com.github.osndok.javax.module</groupId>
 			<artifactId>javax-module</artifactId>
-			<version>1.0.5</version>
+			<version>1.0.6</version>
 		</dependency>
 
+		<!-- For conversion to/from Hexadecimal and Base64url encodings -->
 		<dependency>
 			<groupId>commons-codec</groupId>
 			<artifactId>commons-codec</artifactId>
 			<version>1.10</version>
 		</dependency>
 
+		<!--
+		For a fast, and assuredly-correct (but not pure-java/portable) implementation of Salsa20 encryption.
+		Unfortunately, it does not seem to work for 'subsequent use' for unknown reasons (SIGSEGV).
+		-->
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>3.8.1</version>
+			<groupId>net.java.dev.jna</groupId>
+			<artifactId>jna</artifactId>
+			<version>4.2.1</version>
+			<optional>true</optional>
+		</dependency>
+
+		<!--
+		A pure java implementation is much slower, but avoids the native interface boundary, and is thus
+		unlikely to cause a segmentation-fault. It's output seems to agree with libsodium, and (therefor)
+		the Salsa20 reference implementation (which libsodium includes wholesale in it's source).
+		-->
+		<dependency>
+			<groupId>com.github.emstlk</groupId>
+			<artifactId>nacl4s_2.11</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+
+		<!-- To enable basic unit testing -->
+		<dependency>
+			<groupId>org.testng</groupId>
+			<artifactId>testng</artifactId>
+			<version>6.9.9</version>
 			<scope>test</scope>
 		</dependency>
 

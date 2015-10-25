@@ -1,0 +1,119 @@
+h1. Semi-private Reference
+
+Semi-private-reference is a specification and java reference implementation for a simple wrapper that
+can be deployed around a SHA-1 content-addressable storage system. It provides decent privacy protection
+that follows the "trust no one" pattern with some very interesting privacy and technical trade-offs.
+
+On the one hand, it might allow for an entire storage server of personal and corporate secrets to be both
+"deduplicated", "open to the public", and "accessible without encryption" without compromising security
+at all. And on the other hand, storage of "readily obtainable but illegal files" (i.e. warez) would be
+even easier to scan for by checking the filenames only. In general, it provides strong protection for
+*files you create or keep to your self (or group)*, and an effective guard against those that have read-access
+to the underlying storage mechanism (such as other users of the system or your cloud-storage-provider).
+
+When a file (or stream of bytes) is fed into a content-addressable storage system, SPR first hashes the
+original data to derive an unknowable symmetric encryption key, then it passes the encrypted data down
+into the conventional CAS subsystem. The file handle that is returned (starting with "spr1-", MUST be
+kept in order to return the file), but will also be identical (at least, in principal) for the same
+file. No password is required for encryption or decryption, you can consider the password as coming from
+the file itself, or being "stored" in the file reference.
+
+At a high level, it closely resembles the goals of *libchop*, but uses different hash and crypto functions,
+and does not reach into any deeper layers of this area that would need to be solved (such as segmenting
+large blocks or creating indexes).
+
+h2. Privacy Expectations and Considerations
+
+SPR is considered and expected to be only *semi* private for the following reasons:
+* It provides a more-than-adequate privacy wall to protect from casual snooping (e.g. between users of the same system, your cloud provider, and maybe even the NSA?)
+* It provides a good measure of protection from accidental (or intentional) publication of the underlying data repository (e.g. s3 permissions)
+* It uses the no-longer-recommended SHA-1 hash function in favor of:
+** a shorter final identifier,
+** an easier-to-remember correlation (spr1~=sha1), and
+** compatibility with pre-existing SHA-1 CAS systems
+* This mechanism is best applied to pre-existing files or small blocks of data (such as those coming out of a libchop's stream-chopping-indexer) that fit wholly in-memory, as inserting a large data stream as one big reference would require buffering the plaintext to disk (in order to compute it's sum) which is generally a BAD idea.
+* It feeds a *less-than-ideal* key into the Salsa20 encryption algorithm (160 bits, when 256 is recommended) from the output size of SHA-1,
+* It does not use a proper 'nonce' for the Salso20 algorithm (in order to retain the CAS & deduplication requirements), and
+* It provides no mechanism to obscure (nor is it designed to hide) the length of a unencrypted file/block
+* It provides effectively *zero* protection from an attacker that can read the encrypted repo that desires to *test* for the existence of a known file (in favor of de-duplication).
+
+h2. Reference String Format
+
+Note: The string itself contains a version number, in case an improved SPR specification implementation is called for in the future.
+
+The reference string takes the following form:
+
+<pre>
+spr1-xxxxxxxxxxxxxxxxxxxxxxxxxxxyyyyyyyyyyyyyyyyyyyyyyyyyyy
+</pre>
+
+Where:
+* "spr1-" is a string-constant that can be used for pattern matching
+* "xxxxxxxxxxxxxxxxxxxxxxxxxxx" is the 27 character base64url-encoded SHA-1 hash of the *encrypted* file/bytes that can be used to fetch the cypher text from the underlying CAS system
+* "yyyyyyyyyyyyyyyyyyyyyyyyyyy" is the 27 character base64url-encoded SHA-1 hash of the *decrypted* file/bytes that is used to derive the symmetric key for both encryption and decryption
+
+Note that the xxx's and yyy's are joined together as two independent (character-separable) strings, and not
+as one large base64url-encoded byte string; which would yield a different result and require a bit of
+'extra work' to separate the two keys, or to debug and diagnose the implementation as two halves (such as
+requiring a fetch-only identifier).
+
+Note that it is entirely possible to get a substring of '--' from following this specification, which might
+make including a spr1 reference in *html and xml-related comments* problematic.
+
+h2. Salsa20 Crypto Details
+
+Ordinarily, use of Salsa20 requires a 256-bit key and 64-bit nonce for a total of 320 bits (40 bytes) needed to
+initialize the stream cipher, but the current design trade-offs limit the amount of actual key/nonce data to 160 bits (HALF).
+
+Therefore, similar to the recommendations of Daniel Bernstein relating to using lesser key-sizes, we duplicate
+the available key data once to cover the remaining bits required for the key and nonce.
+
+160-bits (from the private SHA-1 hash) = 20 bytes (or 40 hexadecimal characters).
+
+The first 160-bits of the Salsa20 key-input are precisely the sha-1 private hash value. The remaining 96-bits (12 bytes)
+of the key are filled with the first 12-bytes of the same sha-1 private hash.
+
+The 64-bit nonce is filled with the remaining/lower 64-bits (8 bytes) of the same sha-1 private hash.
+
+<pre>
+Alignment (zero-based/array-indexes):
++---------+-------+---------------+
+| 0-to-19 | 20-31 |     32-39     |
++---------+-------+---------------+
+| -SHA-1- | ------SHA-1 --------- |
+| --Salsa20 Key-- | Salsa20 Nonce |
++---------+-------+---------------+
+</pre>
+
+When we say "encrypt" the data, we are (of course) referring to storing the plaintext XOR'd with the appropriate
+relative output from the Salsa20 stream cipher.
+
+h2. Putting a block, and getting its SPR1
+
+# Compute the SHA-1 of the plaintext block, this is the *privateHash* (yyy's).
+# Encrypt the block with the Salsa20 algorithim (with the key & nonce as decribed above) using the privateHash.
+# Compute the SHA-1 of the encrypted block, this is the *publicHash* (xxx's).
+# Store the encrypted block at such a place (or in such a CAS system) that you can find it using the *publicHash*.
+# Compose the SPR by appending the base64url-encoded publicHash, then similarly-encoded privateHash to the constant string "spr1-".
+
+h2. Getting and verifying a block, given its SPR1
+
+# Extract the *publicHash* & *privateHash* byte-values from the SPR by splitting the string on the appropriate character boundaries and then base64url-decoding them.
+# Fetch the encrypted block using the *publicHash*
+# Initialize the Salsa20 stream cipher using the *privateHash*
+# Initialize two distinct SHA-1 digest algothims (which we will call *alpha* and *beta*).
+# For each segment of encrypted block that is read (which can be optimized to align with Salsa20's 512-bit/64-byte block size):
+## update *alpha* with the encrypted byte values
+## decrypt the bytes by XOR with the Salsa20 stream
+## update *beta* with the decrypted byte values
+# Finalize and compare *alpha* with the *publicHash*... this will tell you if the file has been tampered with (or otherwise corrupted) in storage.
+# Finalize and compare *beta* with the *privateHash*... this will confirm that the reference is valid, and has not been corrupted or 'guessed'.
+
+h2. Other Implementations
+
+There are currently no other known implementations of SPR. :(
+
+We are very interested in hearing about any implementation, but particularly encourage those that might:
+* Port the reference implementation to another programming language, and
+* Cleanly re-implement the specification to discover bugs or further validate both implementation's correctness.
+

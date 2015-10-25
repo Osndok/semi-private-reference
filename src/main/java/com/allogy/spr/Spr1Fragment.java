@@ -22,6 +22,9 @@ class Spr1Fragment
 	public static final
 	int NUM_SHA1_B64_BYTES=27;
 
+	public static final
+	String SHA1_PREFIX="sha1-";
+
 	private
 	String publicString;
 
@@ -88,6 +91,12 @@ class Spr1Fragment
 		}
 
 		return publicBytes;
+	}
+
+	public
+	String getPublicSha1()
+	{
+		return SHA1_PREFIX+Hex.encodeHexString(getPublicBytes());
 	}
 
 	public

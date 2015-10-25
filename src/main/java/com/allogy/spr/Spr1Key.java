@@ -1,6 +1,7 @@
 package com.allogy.spr;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.binary.Hex;
 
 import javax.module.CommandLineTool;
 
@@ -72,6 +73,18 @@ class Spr1Key extends Spr1Fragment
 		}
 
 		return privateBytes;
+	}
+
+	public
+	String getPrivateSha1()
+	{
+		return SHA1_PREFIX+ Hex.encodeHexString(getPrivateBytes());
+	}
+
+	public
+	String getPrivateSha1Hex()
+	{
+		return Hex.encodeHexString(getPrivateBytes());
 	}
 
 	@Override
