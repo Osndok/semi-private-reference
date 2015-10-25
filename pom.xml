@@ -1,25 +1,76 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+<project
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-  <groupId>com.allogy.spr</groupId>
-  <artifactId>spr</artifactId>
-  <version>snapshot</version>
-  <packaging>jar</packaging>
+	<modelVersion>4.0.0</modelVersion>
 
-  <name>spr</name>
-  <url>http://maven.apache.org</url>
+	<groupId>com.allogy.spr</groupId>
+	<artifactId>spr</artifactId>
+	<version>${release.version}</version>
 
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
+	<packaging>jar</packaging>
 
-  <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.1</version>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
+	<name>spr</name>
+	<url>https://redmine.allogy.com/projects/spr</url>
+
+	<description>
+		Semi-private-reference is a specification and reference implementation for light privacy protection
+		that follows the "trust no one" pattern with some very interesting privacy and technical trade-offs.
+
+		On the one hand, it might allow for an entire storage server of personal and corporate secrets to be both
+		"deduplicated", "open to the public", and "accessible without encryption" without compromising security
+		at all. And on the other hand, storage of "readily obtainable but illegal files" (i.e. warez) would be
+		even easier to scan for by checking the filenames only. In general, it provides strong protection for
+		files you create or keep to your self/group, and an effective guard against your cloud-storage-provider
+		from snooping into your data.
+
+		When a file (or stream of bytes) is fed into a content-addressable storage system, SPR first hashes the
+		original data to derive an unknowable symmetric encryption key, then it passes the encrypted data down
+		into the conventional CAS subsystem. The file handle that is returned (starting with "spr1-", MUST be
+		kept in order to return the file), but will also be identical (at least, in principal) for the same
+		file. No password is required for encryption or decryption, you can consider the password as coming from
+		the file itself, or being "stored" in the file reference.
+
+		At a high level, it closely resembles the goals of "libchop", but uses different hash and crypto functions,
+		and does not reach into any deeper layers of this area that would need to be solved (such as segmenting
+		large blocks or creating indexes).
+	</description>
+
+	<dependencies>
+
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>3.8.1</version>
+			<scope>test</scope>
+		</dependency>
+
+	</dependencies>
+
+	<build>
+		<plugins>
+
+			<plugin>
+				<groupId>com.sap.prd.mobile.ios.maven.plugins</groupId>
+				<artifactId>resolve-pom-maven-plugin</artifactId>
+				<version>1.0</version>
+				<executions>
+					<execution>
+						<id>resolve-pom-props</id>
+						<goals>
+							<goal>resolve-pom-props</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+		</plugins>
+	</build>
+
+	<properties>
+		<release.version>snapshot</release.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
 </project>
