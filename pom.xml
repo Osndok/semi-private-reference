@@ -40,6 +40,12 @@
 	<dependencies>
 
 		<dependency>
+			<groupId>com.github.osndok.javax.module</groupId>
+			<artifactId>javax-module</artifactId>
+			<version>1.0.5</version>
+		</dependency>
+
+		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>3.8.1</version>
