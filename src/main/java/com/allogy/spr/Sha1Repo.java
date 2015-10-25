@@ -1,4 +1,4 @@
-package com.allogy.spr.util;
+package com.allogy.spr;
 
 import javax.module.CommandLineOption;
 import javax.module.CommandLineTool;
@@ -54,10 +54,7 @@ class Sha1Repo
 	public
 	File get(byte[] hash) throws IOException
 	{
-		if (hash.length != 20)
-		{
-			throw new IllegalArgumentException("sha-1 hash should be 20 bytes (160 bits) long, not " + hash.length + " bytes");
-		}
+		MustLookLike.aSha1HashCode(hash);
 
 		final
 		File retval = getDestination(hash);

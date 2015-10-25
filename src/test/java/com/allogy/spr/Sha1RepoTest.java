@@ -1,5 +1,6 @@
-package com.allogy.spr.util;
+package com.allogy.spr;
 
+import com.allogy.spr.Sha1Repo;
 import junit.framework.TestCase;
 
 import java.io.ByteArrayInputStream;
@@ -15,7 +16,7 @@ public
 class Sha1RepoTest extends TestCase
 {
 	private final
-	File tempDir=new File("/tmp/sha1repo-test-"+this.hashCode());
+	File tempDir = new File("/tmp/sha1repo-test-" + this.hashCode());
 
 	private
 	Sha1Repo sha1Repo;
@@ -27,7 +28,7 @@ class Sha1RepoTest extends TestCase
 
 		tempDir.mkdir();
 
-		sha1Repo=new Sha1Repo(tempDir);
+		sha1Repo = new Sha1Repo(tempDir);
 	}
 
 	public
