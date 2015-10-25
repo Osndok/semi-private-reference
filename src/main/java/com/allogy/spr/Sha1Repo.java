@@ -305,4 +305,16 @@ class Sha1Repo
 			}
 		}
 	};
+
+	public static
+	byte[] getSha1Sum(byte[] bytes)
+	{
+		final
+		MessageDigest sha1=sha1Source.get();
+		{
+			sha1.reset();
+		}
+
+		return sha1.digest(bytes);
+	}
 }

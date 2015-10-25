@@ -21,13 +21,13 @@ class Spr1Key extends Spr1Fragment
 
 		try
 		{
-			if (s.startsWith("spr1-"))
+			if (s.startsWith(SUGGESTED_PREFIX))
 			{
-				privateString = s.substring(27 + 5, 54 + 5);
+				privateString = s.substring(NUM_SHA1_B64_BYTES + SUGGESTED_PREFIX.length(), 2 * NUM_SHA1_B64_BYTES+ SUGGESTED_PREFIX.length());
 			}
 			else
 			{
-				privateString = s.substring(27, 54);
+				privateString = s.substring(NUM_SHA1_B64_BYTES, 2*NUM_SHA1_B64_BYTES);
 			}
 		}
 		catch (IndexOutOfBoundsException e)
@@ -35,7 +35,7 @@ class Spr1Key extends Spr1Fragment
 			throw new IllegalArgumentException("does not look like an spr1 reference: "+s, e);
 		}
 
-		assert(privateString.length()==27);
+		assert(privateString.length()==NUM_SHA1_B64_BYTES);
 	}
 
 	private
@@ -78,6 +78,6 @@ class Spr1Key extends Spr1Fragment
 	public
 	String toString()
 	{
-		return "spr1-"+getPublicString()+getPrivateString();
+		return SUGGESTED_PREFIX+getPublicString()+getPrivateString();
 	}
 }

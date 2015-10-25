@@ -16,6 +16,12 @@ import java.util.Arrays;
 public
 class Spr1Fragment
 {
+	public static final
+	String SUGGESTED_PREFIX="spr1-";
+
+	public static final
+	int NUM_SHA1_B64_BYTES=27;
+
 	private
 	String publicString;
 
@@ -34,13 +40,13 @@ class Spr1Fragment
 		//I don't know, but if this concerns you... then you should probably be using the byte constructor!!!!
 		try
 		{
-			if (publicString.startsWith("spr1-"))
+			if (publicString.startsWith(SUGGESTED_PREFIX))
 			{
-				publicString=publicString.substring(5, 5+27);
+				publicString=publicString.substring(SUGGESTED_PREFIX.length(), SUGGESTED_PREFIX.length()+NUM_SHA1_B64_BYTES);
 			}
 			else
 			{
-				publicString = publicString.substring(0, 27);
+				publicString = publicString.substring(0, NUM_SHA1_B64_BYTES);
 			}
 		}
 		catch (IndexOutOfBoundsException e)
@@ -48,7 +54,7 @@ class Spr1Fragment
 			throw new IllegalArgumentException("spr1 key fragment must be at least 27 base64 characters (plus optional [and ambiguous] 'spr1-' prefix): "+publicString, e);
 		}
 
-		assert(publicString.length()==27);
+		assert(publicString.length()==NUM_SHA1_B64_BYTES);
 		this.publicString = publicString;
 	}
 
@@ -94,7 +100,7 @@ class Spr1Fragment
 	public
 	String toString()
 	{
-		return "spr1-"+getPublicString()+"????";
+		return SUGGESTED_PREFIX+getPublicString()+"????";
 	}
 
 	@Override
