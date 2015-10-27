@@ -70,9 +70,6 @@ class Spr1Get implements Callable
 		if (destination == null)
 		{
 			outputFile = new File("/tmp/spr1get-" + Thread.currentThread().hashCode());
-			{
-				System.out.println(outputFile);
-			}
 
 			destination = new FileOutputStream(outputFile);
 		}
