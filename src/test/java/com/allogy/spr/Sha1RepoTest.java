@@ -40,41 +40,7 @@ class Sha1RepoTest extends Assert
 	public
 	void tearDown() throws Exception
 	{
-		recursivelyDeleteEntireDirectory(tempDir);
-	}
-
-	private
-	void recursivelyDeleteEntireDirectory(File file) throws IOException
-	{
-		if (file.isDirectory())
-		{
-			System.err.println("DELETE: "+file);
-
-			for (File child : notNull(file.listFiles()))
-			{
-				recursivelyDeleteEntireDirectory(child);
-			}
-		}
-
-		System.err.println("DELETE: " + file);
-
-		if (!file.delete())
-		{
-			throw new IOException("Failed to delete file: " + file);
-		}
-	}
-
-	private
-	File[] notNull(File[] files)
-	{
-		if (files==null)
-		{
-			return new File[0];
-		}
-		else
-		{
-			return files;
-		}
+		Recursively.deleteEntireDirectory(tempDir);
 	}
 
 	private static final

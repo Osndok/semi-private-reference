@@ -8,7 +8,7 @@ import javax.module.CommandLineTool;
 /**
  * Created by robert on 2015-10-25 01:44.
  */
-@CommandLineTool(name="spr1key")
+@CommandLineTool(name="spr1-key")
 public
 class Spr1Key extends Spr1Fragment
 {

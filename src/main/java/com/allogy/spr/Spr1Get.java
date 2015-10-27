@@ -1,17 +1,20 @@
 package com.allogy.spr;
 
+import javax.module.CommandLineTool;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.concurrent.Callable;
 
 /**
  * Created by robert on 2015-10-25 17:40.
  */
+@CommandLineTool(name="spr1-get")
 public
-class Spr1Get implements Callable<File>
+class Spr1Get implements Callable
 {
 	private final
 	Sha1Repo sha1Repo;
@@ -20,7 +23,7 @@ class Spr1Get implements Callable<File>
 	Spr1Key spr1Key;
 
 	private
-	File destination;
+	OutputStream destination;
 
 	public
 	Spr1Get(File repoDir, String spr1Key) throws IOException
@@ -30,7 +33,7 @@ class Spr1Get implements Callable<File>
 	}
 
 	public
-	Spr1Get(File repoDir, String spr1Key, File destination) throws IOException
+	Spr1Get(File repoDir, String spr1Key, OutputStream destination) throws IOException
 	{
 		this.sha1Repo = new Sha1Repo(repoDir);
 		this.spr1Key = new Spr1Key(spr1Key);
@@ -38,7 +41,23 @@ class Spr1Get implements Callable<File>
 	}
 
 	public
-	File call() throws Exception
+	Spr1Get(Sha1Repo sha1Repo, Spr1Key spr1Key)
+	{
+		this.sha1Repo=sha1Repo;
+		this.spr1Key=spr1Key;
+	}
+
+	private
+	File outputFile;
+
+	public
+	File getOutputFile()
+	{
+		return outputFile;
+	}
+
+	public
+	Object call() throws Exception
 	{
 		final
 		File encryptedFile = sha1Repo.get(spr1Key.getPublicBytes());
@@ -50,7 +69,12 @@ class Spr1Get implements Callable<File>
 
 		if (destination == null)
 		{
-			destination = new File("/tmp/spr1get-" + Thread.currentThread().hashCode());
+			outputFile = new File("/tmp/spr1get-" + Thread.currentThread().hashCode());
+			{
+				System.out.println(outputFile);
+			}
+
+			destination = new FileOutputStream(outputFile);
 		}
 
 		final
@@ -59,16 +83,31 @@ class Spr1Get implements Callable<File>
 			final
 			FileInputStream fis = new FileInputStream(encryptedFile);
 
-			final
-			FileOutputStream fos = new FileOutputStream(destination);
-
-			streamResult = new Spr1Encryption(spr1Key).decrypt(fis, fos);
+			streamResult = new Spr1Encryption(spr1Key).decrypt(fis, destination);
 		}
 
-		assert (Arrays.equals(spr1Key.getPublicBytes(), streamResult.getPreHash()));
-		assert (Arrays.equals(spr1Key.getPrivateBytes(), streamResult.getPostHash()));
+		/*
+		When *decoding* the pre-crypto bytes equate to the 'public' hash, and the post-crypto bytes
+		are the 'private' hash.
+		 */
+		if (!Arrays.equals(spr1Key.getPublicBytes(), streamResult.getPreCryptoHash()))
+		{
+			throw new IOException("file/data-stream from sha1Repo was corrupted in storage");
+		}
 
-		return destination;
+		if (!Arrays.equals(spr1Key.getPrivateBytes(), streamResult.getPostCryptoHash()))
+		{
+			throw new IOException("file/data-stream did not decode correctly, probably a corrupted SPR1 reference");
+		}
+
+		if (outputFile==null)
+		{
+			return Void.class;
+		}
+		else
+		{
+			return outputFile;
+		}
 	}
 }
 

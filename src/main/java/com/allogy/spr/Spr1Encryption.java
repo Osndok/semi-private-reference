@@ -215,7 +215,10 @@ class Spr1Encryption
 			try
 			{
 				preHash=MessageDigest.getInstance("SHA-1");
+				preHash.reset();
+
 				postHash=MessageDigest.getInstance("SHA-1");
+				postHash.reset();
 			}
 			catch (NoSuchAlgorithmException e)
 			{
@@ -235,7 +238,9 @@ class Spr1Encryption
 
 		while ((n = inputStream.read(buffer)) > 0)
 		{
+			preHash.update(buffer, 0, n);
 			salsa20stream(buffer, buffer, n, streamOffset);
+			postHash.update(buffer, 0, n);
 			outputStream.write(buffer, 0, n);
 			streamOffset += n;
 		}
@@ -260,13 +265,13 @@ class Spr1Encryption
 		}
 
 		public
-		byte[] getPreHash()
+		byte[] getPreCryptoHash()
 		{
 			return preHash;
 		}
 
 		public
-		byte[] getPostHash()
+		byte[] getPostCryptoHash()
 		{
 			return postHash;
 		}

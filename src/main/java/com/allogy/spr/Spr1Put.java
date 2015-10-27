@@ -1,16 +1,17 @@
 package com.allogy.spr;
 
+import javax.module.CommandLineTool;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.concurrent.Callable;
 
 /**
  * Created by robert on 2015-10-25 02:11.
  */
+@CommandLineTool(name="spr1-put")
 public
 class Spr1Put implements Callable<Spr1Key>
 {
@@ -26,6 +27,12 @@ class Spr1Put implements Callable<Spr1Key>
 		}
 
 		sha1Repo = new Sha1Repo(repoDir);
+	}
+
+	public
+	Spr1Put(Sha1Repo sha1Repo)
+	{
+		this.sha1Repo=sha1Repo;
 	}
 
 	private
@@ -85,9 +92,9 @@ class Spr1Put implements Callable<Spr1Key>
 						streamResult = new Spr1Encryption(privateHash).encrypt(fis, fos);
 					}
 
-					assert (Arrays.equals(privateHash, streamResult.getPreHash()));
+					assert (Arrays.equals(privateHash, streamResult.getPreCryptoHash()));
 
-					publicHash = streamResult.getPostHash();
+					publicHash = streamResult.getPostCryptoHash();
 
 					sha1Repo.absorb(tempFile, publicHash);
 				}

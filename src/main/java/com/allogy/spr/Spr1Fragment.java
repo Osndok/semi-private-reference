@@ -12,7 +12,7 @@ import java.util.Arrays;
  *
  * Created by robert on 2015-10-25 01:03.
  */
-@CommandLineTool
+@CommandLineTool(name="spr1-fragment")
 public
 class Spr1Fragment
 {
