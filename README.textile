@@ -1,26 +1,12 @@
 h1. Semi-private Reference
 
-Semi-private-reference is a specification and java reference implementation for a simple wrapper that
-can be deployed around a SHA-1 content-addressable storage system. It provides decent privacy protection
-that follows the "trust no one" pattern with some very interesting privacy and technical trade-offs.
+Semi-private-reference is a specification and java reference implementation for a simple wrapper that can be deployed around a SHA-1 content-addressable storage system. It provides decent privacy protection that follows the "trust no one" pattern with some very interesting privacy and technical trade-offs.
 
-On the one hand, it might allow for an entire storage server of personal and corporate secrets to be both
-"deduplicated", "open to the public", and "accessible without encryption" without compromising security
-at all. And on the other hand, storage of "readily obtainable but illegal files" (i.e. warez) would be
-even easier to scan for by checking the filenames only. In general, it provides strong protection for
-*files you create or keep to your self (or group)*, and an effective guard against those that have read-access
-to the underlying storage mechanism (such as other users of the system or your cloud-storage-provider).
+On the one hand, it might allow for an entire storage server of personal and corporate secrets to be both "deduplicated", "open to the public", and "accessible without encryption" without compromising security at all. And on the other hand, storage of "readily obtainable but illegal files" (i.e. warez) would be even easier to scan for by checking the filenames only. In general, it provides strong protection for *files you create or keep to your self (or group)*, and an effective guard against those that have read-access to the underlying storage mechanism (such as other users of the system or your cloud-storage-provider).
 
-When a file (or stream of bytes) is fed into a content-addressable storage system, SPR first hashes the
-original data to derive an unknowable symmetric encryption key, then it passes the encrypted data down
-into the conventional CAS subsystem. The file handle that is returned (starting with "spr1-", MUST be
-kept in order to return the file), but will also be identical (at least, in principal) for the same
-file. No password is required for encryption or decryption, you can consider the password as coming from
-the file itself, or being "stored" in the file reference.
+When a file (or stream of bytes) is fed into a content-addressable storage system, SPR first hashes the original data to derive an unknowable symmetric encryption key, then it passes the encrypted data down into the conventional CAS subsystem. The file handle that is returned (starting with "spr1-", MUST be kept in order to return the file), but will also be identical (at least, in principal) for the same file. No password is required for encryption or decryption, you can consider the password as coming from the file itself, or being "stored" in the file reference.
 
-At a high level, it closely resembles the goals of *libchop*, but uses different hash and crypto functions,
-and does not reach into any deeper layers of this area that would need to be solved (such as segmenting
-large blocks or creating indexes).
+At a high level, it closely resembles the goals of *libchop*, but uses different hash and crypto functions, and does not reach into any deeper layers of this area that would need to be solved (such as segmenting large blocks or creating indexes).
 
 h2. Privacy Expectations and Considerations
 
@@ -52,26 +38,19 @@ Where:
 * "xxxxxxxxxxxxxxxxxxxxxxxxxxx" is the 27 character base64url-encoded SHA-1 hash of the *encrypted* file/bytes that can be used to fetch the cypher text from the underlying CAS system
 * "yyyyyyyyyyyyyyyyyyyyyyyyyyy" is the 27 character base64url-encoded SHA-1 hash of the *decrypted* file/bytes that is used to derive the symmetric key for both encryption and decryption
 
-Note that the xxx's and yyy's are joined together as two independent (character-separable) strings, and not
-as one large base64url-encoded byte string; which would yield a different result and require a bit of
-'extra work' to separate the two keys, or to debug and diagnose the implementation as two halves (such as
-requiring a fetch-only identifier).
+Note that the xxx's and yyy's are joined together as two independent (character-separable) strings, and not as one large base64url-encoded byte string; which would yield a different result and require a bit of 'extra work' to separate the two keys, or to debug and diagnose the implementation as two halves (such as requiring a fetch-only identifier).
 
-Note that it is entirely possible to get a substring of '--' from following this specification, which might
-make including a spr1 reference in *html and xml-related comments* problematic.
+Note that it is entirely possible to get a substring of '--' from following this specification, which might make including a spr1 reference in *html and xml-related comments* problematic.
 
 h2. Salsa20 Crypto Details
 
-Ordinarily, use of Salsa20 requires a 256-bit key and 64-bit nonce for a total of 320 bits (40 bytes) needed to
-initialize the stream cipher, but the current design trade-offs limit the amount of actual key/nonce data to 160 bits (HALF).
+Ordinarily, use of Salsa20 requires a 256-bit key and 64-bit nonce for a total of 320 bits (40 bytes) needed to initialize the stream cipher, but the current design trade-offs limit the amount of actual key/nonce data to 160 bits (HALF).
 
-Therefore, similar to the recommendations of Daniel Bernstein relating to using lesser key-sizes, we duplicate
-the available key data once to cover the remaining bits required for the key and nonce.
+Therefore, similar to the recommendations of Daniel Bernstein relating to using lesser key-sizes, we duplicate the available key data once to cover the remaining bits required for the key and nonce.
 
 160-bits (from the private SHA-1 hash) = 20 bytes (or 40 hexadecimal characters).
 
-The first 160-bits of the Salsa20 key-input are precisely the sha-1 private hash value. The remaining 96-bits (12 bytes)
-of the key are filled with the first 12-bytes of the same sha-1 private hash.
+The first 160-bits of the Salsa20 key-input are precisely the sha-1 private hash value. The remaining 96-bits (12 bytes) of the key are filled with the first 12-bytes of the same sha-1 private hash.
 
 The 64-bit nonce is filled with the remaining/lower 64-bits (8 bytes) of the same sha-1 private hash.
 
@@ -85,8 +64,7 @@ Alignment (zero-based/array-indexes):
 +---------+-------+---------------+
 </pre>
 
-When we say "encrypt" the data, we are (of course) referring to storing the plaintext XOR'd with the appropriate
-relative output from the Salsa20 stream cipher.
+When we say "encrypt" the data, we are (of course) referring to storing the plaintext XOR'd with the appropriate relative output from the Salsa20 stream cipher.
 
 h2. Putting a block, and getting its SPR1
 
