@@ -23,6 +23,8 @@ SPR is considered and expected to be only *semi* private for the following reaso
 * It provides no mechanism to obscure (nor is it designed to hide) the length of a unencrypted file/block
 * It provides effectively *zero* protection from an attacker that can read the encrypted repo that desires to *test* for the existence of a known file (in favor of de-duplication).
 
+For more information, please read "this wikipedia article":https://en.wikipedia.org/wiki/Convergent_encryption on "convergent encryption".
+
 h2. Reference String Format
 
 Note: The string itself contains a version number, in case an improved SPR specification implementation is called for in the future.
