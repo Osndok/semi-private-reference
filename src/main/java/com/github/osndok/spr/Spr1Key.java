@@ -1,4 +1,4 @@
-package com.allogy.spr;
+package com.github.osndok.spr;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;

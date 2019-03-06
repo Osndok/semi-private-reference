@@ -1,4 +1,4 @@
-package com.allogy.spr;
+package com.github.osndok.spr;
 
 /**
  * Created by robert on 2015-10-25 01:08.

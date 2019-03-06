@@ -1,4 +1,4 @@
-package com.allogy.spr;
+package com.github.osndok.spr;
 
 import com.emstlk.nacl4s.crypto.Utils;
 import com.emstlk.nacl4s.crypto.core.Salsa20;

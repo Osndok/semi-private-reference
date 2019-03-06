@@ -1,4 +1,4 @@
-package com.allogy.spr;
+package com.github.osndok.spr;
 
 import com.sun.jna.Native;
 import com.sun.jna.Memory;

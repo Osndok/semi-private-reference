@@ -1,4 +1,4 @@
-package com.allogy.spr;
+package com.github.osndok.spr;
 
 import javax.module.CommandLineOption;
 import javax.module.CommandLineTool;

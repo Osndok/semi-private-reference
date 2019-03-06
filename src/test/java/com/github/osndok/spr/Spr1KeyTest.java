@@ -1,4 +1,4 @@
-package com.allogy.spr;
+package com.github.osndok.spr;
 
 import junit.framework.TestCase;
 import org.apache.commons.codec.binary.Hex;
