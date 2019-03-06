@@ -1,0 +1,53 @@
+
+h2. Size Hint
+
+Since there are certain applications where it can be greatly beneficial to (at least approximately) know the size of a file before dereferecing it, such as ordering & scheduling HTTP fetches, spr1 supports and recommends using a size magnitude hint.
+
+As encoded, the hint is two visually-unambiguous Base47i characters (which together would yield a raw range of 0 to 2208).
+
+To scale this towards a more useful and granular range, we divide the raw output by *37*... this number is chosen to provide a cap at approximately one exabyte per reference (though, anything above that would *also* be represented as 'zz').
+
+We also specify that the encoding should yield the 'pessimestic' extreme (thinking the file to fetch and decode is too large)... to optimize for the cases of allocation or deadline scheduling (as a pleasant surprise is better than an unpleasant one).
+
+NB: The encoding is designed such that an spr1 consumer usually does not need to know how to encode or decode it. For common functions, simply sorting the spr1's "alphabetically" (where numberals come first and each lower case character is 'less than' its upper, which is yet 'less than' the next lower case character) will actually yield a list sorted by size, or (such as for fetching) can simply be ignored.
+
+Examples:
+
+A small black-and-white diagram... 3028 bytes...
+
+encoding:
+* 3028 bytes
+* ceil(log2(3028)*37) = 428 = 'd8'
+
+decoding:
+* 'd8' = 428
+* floor(2**(428/37)) = 3035 bytes
+* NOTE that the size hint (3035 bytes) decodes slightly LARGER than the ACTUAL file size (3028 bytes)!
+* 3035-3028= 7 bytes off
+
+A "normal" jpeg... 5.7MB
+* ceil(log2(5912044)*37)= 833 = 'it'
+* floor(2**(833/37))= 5987463 bytes
+* (5987463-5912044= 75419)/1024= 74 KB off
+
+A DVD ISO image... 4.4GB
+* ceil(log2(4688183296)*37)= 1189 = 'ng'
+* floor(2**(1189/37))= 4716714510
+* 4716714510-4688183296 = 28531214 bytes
+	* (/1024= 27863)/1024= 27MB off
+
+A large, 8TB hard drive (or image thereof)...
+* 8*10**12= 8000000000000
+* ceil(log2(8000000000000)*37)= 1586 = 'sT'
+* floor(2**(1586/37))= 8.0096e+12
+* about 10GB off...
+
+NB: Encoding less that 47 bytes would normally yield a single-digit base47i numeral, thus the suggested implementation should simply run the size through the math and base47i encoder... if the result is one character, prefix it with a zero, if it is two characters use it as-is (the common/expected case), and otherwise use 'zz'.
+
+h2. Binary Reference
+
+When stored in a minimal binary format, an spr1 reference takes a minimum of 40 bytes.
+* 20 bytes for the 'public' sha1 of the encrypted output, 
+* 20 bytes for the 'private' sha1 of the decrypted input, and
+* 2 optional bytes for the encoded size magnitude hint
+

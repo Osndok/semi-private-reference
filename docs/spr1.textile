@@ -1,0 +1,78 @@
+
+h2. URN Format
+
+spr1:zz:xxxxxxxxxxxxxxxxxxxxxxxxxxx:yyyyyyyyyyyyyyyyyyyyyyyyyyy
+
+h2. Reference String Format
+
+When stored as a human-copyable (yet machine locatable-and-parsable) textual identifier, the spr1 code usually takes 59 single-byte characters.
+
+Note: The string itself contains a version number, in case an improved SPR specification implementation is called for in the future.
+
+The reference string takes the following form:
+
+<pre>
+spr1-xxxxxxxxxxxxxxxxxxxxxxxxxxxyyyyyyyyyyyyyyyyyyyyyyyyyyy
+</pre>
+
+Or with the size-hint:
+
+<pre>
+spr1-zz-xxxxxxxxxxxxxxxxxxxxxxxxxxxyyyyyyyyyyyyyyyyyyyyyyyyyyy
+</pre>
+
+Where:
+* "spr1-" is a string-constant that can be used for pattern matching
+* "xxxxxxxxxxxxxxxxxxxxxxxxxxx" is the 27 character base64url-encoded SHA-1 hash of the *encrypted* file/bytes that can be used to fetch the cypher text from the underlying CAS system
+* "yyyyyyyyyyyyyyyyyyyyyyyyyyy" is the 27 character base64url-encoded SHA-1 hash of the *decrypted* file/bytes that is used to derive the symmetric key for both encryption and decryption
+* The optional "zz" segment is a strictly-two-digit base47i-encoded integer (ranging from zero to 2208) which gives an exponential "order-of-magnitude" for the referenced file size as interpreted above.
+
+Note that the xxx's and yyy's are joined together as two independent (character-separable) strings, and not as one large base64url-encoded byte string; which would yield a different result and require a bit of 'extra work' to separate the two keys, or to debug and diagnose the implementation as two halves (such as requiring a fetch-only identifier).
+
+Note that it is entirely possible to get a substring of '--' from following this specification, which might make including a spr1 reference in *html and xml-related comments* problematic.
+
+h2. Salsa20 Crypto Details
+
+Ordinarily, use of Salsa20 requires a 256-bit key and 64-bit nonce for a total of 320 bits (40 bytes) needed to initialize the stream cipher, but the current design trade-offs limit the amount of actual key/nonce data to 160 bits (HALF).
+
+Therefore, similar to the recommendations of Daniel Bernstein relating to using lesser key-sizes, we duplicate the available key data once to cover the remaining bits required for the key and nonce.
+
+160-bits (from the private SHA-1 hash) = 20 bytes (or 40 hexadecimal characters).
+
+The first 160-bits of the Salsa20 key-input are precisely the sha-1 private hash value. The remaining 96-bits (12 bytes) of the key are filled with the first 12-bytes of the same sha-1 private hash.
+
+The 64-bit nonce is filled with the remaining/lower 64-bits (8 bytes) of the same sha-1 private hash.
+
+<pre>
+Alignment (zero-based/array-indexes):
++---------+-------+---------------+
+| 0-to-19 | 20-31 |     32-39     |
++---------+-------+---------------+
+| -SHA-1- | ------SHA-1 --------- |
+| --Salsa20 Key-- | Salsa20 Nonce |
++---------+-------+---------------+
+</pre>
+
+When we say "encrypt" the data, we are (of course) referring to storing the plaintext XOR'd with the appropriate relative output from the Salsa20 stream cipher.
+
+h2. Putting a block, and getting its SPR1
+
+# Compute the SHA-1 of the plaintext block, this is the *privateHash* (yyy's).
+# Encrypt the block with the Salsa20 algorithim (with the key & nonce as decribed above) using the privateHash.
+# Compute the SHA-1 of the encrypted block, this is the *publicHash* (xxx's).
+# Store the encrypted block at such a place (or in such a CAS system) that you can find it using the *publicHash*.
+# Compose the SPR by appending the base64url-encoded publicHash, then similarly-encoded privateHash to the constant string "spr1-".
+
+h2. Getting and verifying a block, given its SPR1
+
+# Extract the *publicHash* & *privateHash* byte-values from the SPR by splitting the string on the appropriate character boundaries and then base64url-decoding them.
+# Fetch the encrypted block using the *publicHash*
+# Initialize the Salsa20 stream cipher using the *privateHash*
+# Initialize two distinct SHA-1 digest algothims (which we will call *alpha* and *beta*).
+# For each segment of encrypted block that is read (which can be optimized to align with Salsa20's 512-bit/64-byte block size):
+## update *alpha* with the encrypted byte values
+## decrypt the bytes by XOR with the Salsa20 stream
+## update *beta* with the decrypted byte values
+# Finalize and compare *alpha* with the *publicHash*... this will tell you if the file has been tampered with (or otherwise corrupted) in storage.
+# Finalize and compare *beta* with the *privateHash*... this will confirm that the reference is valid, and has not been corrupted or 'guessed'.
+
