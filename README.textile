@@ -27,9 +27,9 @@ For more information, please read "this wikipedia article":https://en.wikipedia.
 
 h2. Specification / Documentation
 
-* "Common":docs/common - Ideas and concepts that apply to more than one spr idea.
-* "SPR1":docs/spr1 - A basic single-file encryption mechanism that does not effect the file size and maintains deduplication ability.
-* "SPR2":docs/spr2 - A "tree-like" structure that makes use of the spr1 mechanisms, that is useful for capturing a changing directory of files. Basically allows one to map a string to a file, and express files & directories with near-arbitrary block sizes.
+* "Common":docs/common.textile - Ideas and concepts that apply to more than one spr idea.
+* "SPR1":docs/spr1.textile - A basic single-file encryption mechanism that does not effect the file size and maintains deduplication ability.
+* "SPR2":docs/spr2.textile - A "tree-like" structure that makes use of the spr1 mechanisms, that is useful for capturing a changing directory of files. Basically allows one to map a string to a file, and express files & directories with near-arbitrary block sizes.
 
 
 h2. Other Implementations
