@@ -1,0 +1,70 @@
+<project
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>com.github.osndok.spr</groupId>
+		<artifactId>spr-parent</artifactId>
+		<version>snapshot</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+
+	<artifactId>spr-common</artifactId>
+	<version>snapshot</version>
+
+	<packaging>jar</packaging>
+
+	<dependencies>
+
+		<!-- For annotations concerning command line utility, easy to kern out if undesired -->
+		<dependency>
+			<groupId>com.github.osndok.javax.module</groupId>
+			<artifactId>javax-module</artifactId>
+			<version>1-snapshot</version>
+		</dependency>
+
+		<!-- For conversion to/from Hexadecimal and Base64url encodings -->
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>1.10</version>
+		</dependency>
+
+		<!--
+		For a fast, and assuredly-correct (but not pure-java/portable) implementation of Salsa20 encryption.
+		Unfortunately, it does not seem to work for 'subsequent use' for unknown reasons (SIGSEGV).
+		Using the "provided" scope means we can still let our engineers fiddle without requiring code changes.
+		-->
+		<dependency>
+			<groupId>net.java.dev.jna</groupId>
+			<artifactId>jna</artifactId>
+			<version>4.2.1</version>
+			<scope>provided</scope>
+			<optional>true</optional>
+		</dependency>
+
+		<!--
+		A pure java implementation is much slower, but avoids the native interface boundary, and is thus
+		unlikely to cause a segmentation-fault. It's output seems to agree with libsodium, and (therefor)
+		the Salsa20 reference implementation (which libsodium includes wholesale in it's source).
+		-->
+		<dependency>
+			<groupId>com.github.emstlk</groupId>
+			<artifactId>nacl4s_2.11</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+
+		<!-- To enable basic unit testing -->
+		<dependency>
+			<groupId>org.testng</groupId>
+			<artifactId>testng</artifactId>
+			<version>6.9.9</version>
+			<scope>test</scope>
+		</dependency>
+
+	</dependencies>
+
+</project>
