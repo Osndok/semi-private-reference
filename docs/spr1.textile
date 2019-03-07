@@ -25,7 +25,7 @@ Where:
 * "spr1-" is a string-constant that can be used for pattern matching
 * "xxxxxxxxxxxxxxxxxxxxxxxxxxx" is the 27 character base64url-encoded SHA-1 hash of the *encrypted* file/bytes that can be used to fetch the cypher text from the underlying CAS system
 * "yyyyyyyyyyyyyyyyyyyyyyyyyyy" is the 27 character base64url-encoded SHA-1 hash of the *decrypted* file/bytes that is used to derive the symmetric key for both encryption and decryption
-* The optional "zz" segment is a strictly-two-digit base47i-encoded integer (ranging from zero to 2208) which gives an exponential "order-of-magnitude" for the referenced file size as interpreted above.
+* The optional "zz" segment is a strictly-two-digit "Base47i":./base47i.textile encoded integer (ranging from zero to 2208) which gives an exponential "order-of-magnitude" for the referenced file size as interpreted above.
 
 Note that the xxx's and yyy's are joined together as two independent (character-separable) strings, and not as one large base64url-encoded byte string; which would yield a different result and require a bit of 'extra work' to separate the two keys, or to debug and diagnose the implementation as two halves (such as requiring a fetch-only identifier).
 

@@ -1,0 +1,63 @@
+
+
+Feature points:
+* very compact (few characters to remember/type)
+** for example, the current :Unix:Time is "bLcXeX" is this encoding.
+* visually unambiguous (no confusion as to what a character is)
+* "intuitive" character order
+** numerals first (like in hex "0..F")
+** lowercase first (b/c "a < A")
+** intercase alphabetical order (e.g. "aA < bB")
+
+CHARS=3479aAbcCdeEfFghHijJkKLmMnNopPqrRstTuUvVwWxXyYz
+
+===== Initial test vectors: =====
+
+'''
++-----------------+----------------------+---------------+------------------+
+|    test name    |    decimal value     |    base47i    |    hex value     |
++-----------------+----------------------+---------------+------------------+
+|              45 |                   45 |             Y |               2d |
+|              46 |                   46 |             z |               2e |
+|              47 |                   47 |            43 |               2f |
+|              48 |                   48 |            44 |               30 |
+|              49 |                   49 |            47 |               31 |
+|       small-int |                 1000 |            KF |              3e8 |
+|       small-int |                 1673 |            Tp |              689 |
+|       small-int |               167300 |          4pto |            28d84 |
+|      small-long |                 1673 |            Tp |              689 |
+|      small-long |               167300 |          4pto |            28d84 |
+|        ZERO_INT |                    0 |             3 |                0 |
+|       MAX_INT-1 |           2147483646 |        dia9yJ |         7ffffffe |
+|         MAX_INT |           2147483647 |        dia9yk |         7fffffff |
+|       ZERO_LONG |                    0 |             3 |                0 |
+|      MAX_LONG-1 |  9223372036854775806 |  9tHnyKTCFk4t | 7ffffffffffffffe |
+|        MAX_LONG |  9223372036854775807 |  9tHnyKTCFk4T | 7fffffffffffffff |
+|       YEAR_SECS |             31536000 |         bKTbt |          1e13380 |
+|        NOW_SECS |           1484247076 |        bLcy74 |         5877d024 |
+|       NOW_MILLI |        1484247076030 |      7XRrWa3X |      15994050cbe |
+|        NOW_NANO |      182016219949089 |     cqfVz4xuR |     a58af4222821 |
+|         neg-int |                -1673 |           -Tp |         fffff977 |
+|         neg-int |              -167300 |         -4pto |         fffd727c |
+|        neg-long |                -1673 |           -Tp | fffffffffffff977 |
+|        neg-long |              -167300 |         -4pto | fffffffffffd727c |
+|       MIN_INT+1 |          -2147483647 |       -dia9yk |         80000001 |
+|         MIN_INT |          -2147483648 |       -dia9yK |         80000000 |
+|      MIN_LONG+1 | -9223372036854775807 | -9tHnyKTCFk4T | 8000000000000001 |
+|        MIN_LONG | -9223372036854775808 | -9tHnyKTCFk4u | 8000000000000000 |
++-----------------+----------------------+---------------+------------------+
+'''
+
+
+
+===== Magnitude cut off points: =====
+
+0:          z -> 46
+1:         zz -> 2208
+2:        zzz -> 103822
+3:       zzzz -> 4879680
+4:      zzzzz -> 229345006
+5:     zzzzzz -> 10779215328
+6:    zzzzzzz -> 506623120462
+7:   zzzzzzzz -> 23811286661760
+
