@@ -1,6 +1,5 @@
 package com.github.osndok.spr;
 
-import junit.framework.TestCase;
 import org.apache.commons.codec.binary.Hex;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -16,10 +15,10 @@ public
 class Spr1FragmentTest extends Assert
 {
 	private static final
-	String HEX="b7e23ec29af22b0b4e41da31e868d57226121c84";
+	String SHA1_HEX ="b7e23ec29af22b0b4e41da31e868d57226121c84";
 
 	private static final
-	String EXPECTED_BASE64="t-I-wpryKwtOQdox6GjVciYSHIQ";
+	String SPR1_B64 ="t-I-wpryKwtOQdox6GjVciYSHIQ";
 
 	private
 	byte[] BYTES;
@@ -30,7 +29,7 @@ class Spr1FragmentTest extends Assert
 	{
 		//super.setUp();
 
-		BYTES = Hex.decodeHex(HEX.toCharArray());
+		BYTES = Hex.decodeHex(SHA1_HEX.toCharArray());
 	}
 
 	@Test
@@ -39,27 +38,27 @@ class Spr1FragmentTest extends Assert
 	{
 		Spr1Fragment s=new Spr1Fragment(BYTES);
 		{
-			assertEquals(s.getPublicString(), EXPECTED_BASE64);
+			assertEquals(s.getPublicString(), SPR1_B64);
 		}
 
-		s=new Spr1Fragment(EXPECTED_BASE64);
+		s=new Spr1Fragment(SPR1_B64);
 		{
-			assertEquals(s.getPublicString(), EXPECTED_BASE64);
+			assertEquals(s.getPublicString(), SPR1_B64);
 		}
 
-		s=new Spr1Fragment("spr1-"+EXPECTED_BASE64);
+		s=new Spr1Fragment("spr1-"+ SPR1_B64);
 		{
-			assertEquals(s.getPublicString(), EXPECTED_BASE64);
+			assertEquals(s.getPublicString(), SPR1_B64);
 		}
 
-		s=new Spr1Fragment(EXPECTED_BASE64+"NOISE");
+		s=new Spr1Fragment(SPR1_B64 +"NOISE");
 		{
-			assertEquals(s.getPublicString(), EXPECTED_BASE64);
+			assertEquals(s.getPublicString(), SPR1_B64);
 		}
 
-		s=new Spr1Fragment("spr1-"+EXPECTED_BASE64+"NOISE");
+		s=new Spr1Fragment("spr1-"+ SPR1_B64 +"NOISE");
 		{
-			assertEquals(s.getPublicString(), EXPECTED_BASE64);
+			assertEquals(s.getPublicString(), SPR1_B64);
 		}
 	}
 
@@ -67,22 +66,22 @@ class Spr1FragmentTest extends Assert
 	public
 	void testGetPublicBytes() throws Exception
 	{
-		Spr1Fragment s=new Spr1Fragment(EXPECTED_BASE64);
+		Spr1Fragment s=new Spr1Fragment(SPR1_B64);
 		{
 			assertTrue(Arrays.equals(s.getPublicBytes(), BYTES));
 		}
 
-		s=new Spr1Fragment(EXPECTED_BASE64+"NOISE");
+		s=new Spr1Fragment(SPR1_B64 +"NOISE");
 		{
 			assertTrue(Arrays.equals(s.getPublicBytes(), BYTES));
 		}
 
-		s=new Spr1Fragment("spr1-"+EXPECTED_BASE64);
+		s=new Spr1Fragment("spr1-"+ SPR1_B64);
 		{
 			assertTrue(Arrays.equals(s.getPublicBytes(), BYTES));
 		}
 
-		s=new Spr1Fragment("spr1-"+EXPECTED_BASE64+"NOISE");
+		s=new Spr1Fragment("spr1-"+ SPR1_B64 +"NOISE");
 		{
 			assertTrue(Arrays.equals(s.getPublicBytes(), BYTES));
 		}
@@ -100,7 +99,7 @@ class Spr1FragmentTest extends Assert
 		final
 		Spr1Fragment spr1Fragment=new Spr1Fragment(BYTES);
 		{
-			assertEquals(spr1Fragment.getPublicSha1Hex(), HEX);
+			assertEquals(spr1Fragment.getPublicSha1Hex(), SHA1_HEX);
 		}
 	}
 
@@ -114,7 +113,8 @@ class Spr1FragmentTest extends Assert
 		final
 		String s=spr1Fragment.toString();
 		{
-			assertTrue(s.startsWith("spr1-" + EXPECTED_BASE64));
+			//assertTrue(s.startsWith("spr1-" + SPR1_B64));
+			assertEquals(s, "sha1-"+SHA1_HEX);
 		}
 	}
 
@@ -126,10 +126,10 @@ class Spr1FragmentTest extends Assert
 		Spr1Fragment a=new Spr1Fragment(BYTES);
 
 		final
-		Spr1Fragment b=new Spr1Fragment(EXPECTED_BASE64);
+		Spr1Fragment b=new Spr1Fragment(SPR1_B64);
 
 		final
-		Spr1Fragment c=new Spr1Fragment("spr1-"+EXPECTED_BASE64);
+		Spr1Fragment c=new Spr1Fragment("spr1-"+ SPR1_B64);
 
 		assertEquals(a, a);
 		assertEquals(a, b);
@@ -147,16 +147,75 @@ class Spr1FragmentTest extends Assert
 	void testHashCode() throws Exception
 	{
 		final
-		int expectedHashCode=EXPECTED_BASE64.hashCode();
+		int expectedHashCode= SPR1_B64.hashCode();
 
 		Spr1Fragment s=new Spr1Fragment(BYTES);
 		{
 			assertEquals(s.hashCode(), expectedHashCode);
 		}
 
-		s=new Spr1Fragment(EXPECTED_BASE64);
+		s=new Spr1Fragment(SPR1_B64);
 		{
 			assertEquals(s.hashCode(), expectedHashCode);
+		}
+	}
+
+	private
+	Spr1Fragment s()
+	{
+		return new Spr1Fragment();
+	}
+
+	@Test
+	public
+	void testByteStringConversion()
+	{
+		Spr1Fragment s;
+
+		s=s();
+		{
+			s.setPublicBytes(BYTES);
+			assertEquals(s.getPublicString(), SPR1_B64);
+			assertEquals(s.getPublicSha1Hex(), SHA1_HEX);
+		}
+
+		s=s();
+		{
+			s.setPublicString(SPR1_B64);
+			assertEquals(s.getPublicBytes(), BYTES);
+			assertEquals(s.getPublicSha1Hex(), SHA1_HEX);
+		}
+	}
+
+	//Using the "DVD" example...
+	@Test
+	public
+	void testBasicSizeHint()
+	{
+		Spr1Fragment s;
+
+		//long to string/bytes
+		s=s();
+		{
+			s.setSizeHint(4688183296l);
+			assertEquals(s.getSizeHintString(), "ng");
+			assertEquals(s.getSizeHintBytes(), new byte[]{4, -91});
+		}
+
+		//string to long/bytes
+		s=s();
+		{
+			s.setSizeHintString("ng");
+			assertEquals(s.getSizeHint(), new Long(4716714510l));
+			assertEquals(s.getSizeHintBytes(), new byte[]{4, -91});
+		}
+
+		//bytes to string/long
+		s=s();
+		{
+			s.setSizeHintBytes(new byte[]{4, -91});
+			assertEquals(s.getSizeHintString(), "ng");
+			assertEquals(s.getSizeHint(), new Long(4716714510l));
 		}
 	}
 }

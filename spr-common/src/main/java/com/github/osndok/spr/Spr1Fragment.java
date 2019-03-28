@@ -31,6 +31,21 @@ class Spr1Fragment
 	private
 	byte[] publicBytes;
 
+
+	private
+	Long sizeHint;
+
+	private
+	String sizeHintString;
+
+	private
+	byte[] sizeHintBytes;
+
+	Spr1Fragment()
+	{
+		//for testing...
+	}
+
 	public
 	Spr1Fragment(String publicString)
 	{
@@ -57,6 +72,12 @@ class Spr1Fragment
 			throw new IllegalArgumentException("spr1 key fragment must be at least 27 base64 characters (plus optional [and ambiguous] 'spr1-' prefix): "+publicString, e);
 		}
 
+		if (publicString.charAt(2)=='-')
+		{
+			this.sizeHintString=publicString.substring(0, 2);
+			publicString=publicString.substring(3);
+		}
+
 		assert(publicString.length()==NUM_SHA1_B64_BYTES);
 		this.publicString = publicString;
 	}
@@ -64,6 +85,7 @@ class Spr1Fragment
 	public
 	Spr1Fragment(byte[] publicBytes)
 	{
+		//TODO: if we have an extra two bytes, pop off the first two for the size hint.
 		MustLookLike.aSha1HashCode(publicBytes);
 
 		//TODO: should we copy this array?
@@ -109,7 +131,8 @@ class Spr1Fragment
 	public
 	String toString()
 	{
-		return SUGGESTED_PREFIX+getPublicString()+"????";
+		return SHA1_PREFIX+getPublicSha1Hex();
+		//return SUGGESTED_PREFIX+getPublicString()+"????";
 	}
 
 	@Override
@@ -144,5 +167,103 @@ class Spr1Fragment
 	int hashCode()
 	{
 		return getPublicString().hashCode();
+	}
+
+	public
+	void setPublicString(String publicString)
+	{
+		this.publicBytes = null;
+		this.publicString = publicString;
+	}
+
+	public
+	void setPublicBytes(byte[] publicBytes)
+	{
+		this.publicString=null;
+		this.publicBytes = publicBytes;
+	}
+
+	public
+	String getSizeHintString()
+	{
+		if (sizeHintString==null)
+		{
+			if (sizeHint!=null)
+			{
+				int power=(int)Math.ceil(Math.log(sizeHint)/Math.log(2)*37.0);
+				sizeHintString=new Base47i().encodeInt(power);
+			}
+			else
+			if (sizeHintBytes != null)
+			{
+				int power=((0xff00 &((int)sizeHintBytes[0])<<8) | (0xff & ((int)sizeHintBytes[1])));
+				sizeHintString=new Base47i().encodeInt(power);
+			}
+		}
+		return sizeHintString;
+	}
+
+	public
+	void setSizeHintString(String sizeHintString)
+	{
+		this.sizeHint=null;
+		this.sizeHintBytes=null;
+		this.sizeHintString = sizeHintString;
+	}
+
+	public
+	byte[] getSizeHintBytes()
+	{
+		if (sizeHintBytes==null)
+		{
+			if (sizeHint!=null)
+			{
+				int power=(int)Math.ceil(Math.log(sizeHint)/Math.log(2)*37.0);
+				sizeHintBytes=new byte[]{(byte)(power>>8), (byte)(power)};
+			}
+			else
+			if (sizeHintString!=null)
+			{
+				int power=new Base47i().decodeInt(sizeHintString);
+				sizeHintBytes=new byte[]{(byte)(power>>8), (byte)(power)};
+			}
+		}
+		return sizeHintBytes;
+	}
+
+	public
+	void setSizeHintBytes(byte[] sizeHintBytes)
+	{
+		this.sizeHint=null;
+		this.sizeHintString=null;
+		this.sizeHintBytes = sizeHintBytes;
+	}
+
+	public
+	Long getSizeHint()
+	{
+		if (sizeHint==null)
+		{
+			if (sizeHintString!=null)
+			{
+				int power=new Base47i().decodeInt(sizeHintString);
+				sizeHint=(long)Math.floor(Math.pow(2.0, (power/37.0)));
+			}
+			else
+			if (sizeHintBytes!=null)
+			{
+				int power=(0xff00 & (((int)sizeHintBytes[0])<<8)) | (0xff & (int)sizeHintBytes[1]);
+				sizeHint=(long)Math.floor(Math.pow(2.0, (power/37.0)));
+			}
+		}
+		return sizeHint;
+	}
+
+	public
+	void setSizeHint(long sizeHint)
+	{
+		this.sizeHintBytes=null;
+		this.sizeHintString=null;
+		this.sizeHint = sizeHint;
 	}
 }
