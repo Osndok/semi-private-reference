@@ -196,7 +196,7 @@ class Spr1Fragment
 			else
 			if (sizeHintBytes != null)
 			{
-				int power=((0xff00 &((int)sizeHintBytes[0])<<8) | (0xff & ((int)sizeHintBytes[1])));
+				int power=unsigned(sizeHintBytes[0])<<8 | unsigned(sizeHintBytes[1]);
 				sizeHintString=new Base47i().encodeInt(power);
 			}
 		}
@@ -252,11 +252,17 @@ class Spr1Fragment
 			else
 			if (sizeHintBytes!=null)
 			{
-				int power=(0xff00 & (((int)sizeHintBytes[0])<<8)) | (0xff & (int)sizeHintBytes[1]);
+				int power=unsigned(sizeHintBytes[0])<<8 | unsigned(sizeHintBytes[1]);
 				sizeHint=(long)Math.floor(Math.pow(2.0, (power/37.0)));
 			}
 		}
 		return sizeHint;
+	}
+
+	private
+	int unsigned(byte b)
+	{
+		return 0xff & ((int)b);
 	}
 
 	public
