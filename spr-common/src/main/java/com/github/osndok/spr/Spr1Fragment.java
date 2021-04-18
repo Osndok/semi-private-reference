@@ -3,8 +3,6 @@ package com.github.osndok.spr;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 
-import javax.module.CommandLineOption;
-import javax.module.CommandLineTool;
 import java.util.Arrays;
 
 /**
@@ -12,7 +10,7 @@ import java.util.Arrays;
  *
  * Created by robert on 2015-10-25 01:03.
  */
-@CommandLineTool(name="spr1-fragment")
+//@javax.module.CommandLineTool(name="spr1-fragment")
 public
 class Spr1Fragment
 {
@@ -92,7 +90,7 @@ class Spr1Fragment
 		this.publicBytes = publicBytes;
 	}
 
-	@CommandLineOption(_long = "public", _short = 'u')
+	//@javax.module.CommandLineOption(_long = "public", _short = 'u')
 	public
 	String getPublicString()
 	{

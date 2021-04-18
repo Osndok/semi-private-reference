@@ -19,12 +19,14 @@
 
 	<dependencies>
 
-		<!-- For annotations concerning command line utility, easy to kern out if undesired -->
+		<!-- For annotations concerning command line utility, easy to kern out if undesired
+		- ->
 		<dependency>
 			<groupId>com.github.osndok.javax.module</groupId>
 			<artifactId>javax-module</artifactId>
 			<version>1-snapshot</version>
 		</dependency>
+		-->
 
 		<!-- For conversion to/from Hexadecimal and Base64url encodings -->
 		<dependency>

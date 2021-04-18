@@ -1,6 +1,5 @@
 package com.github.osndok.spr;
 
-import javax.module.CommandLineTool;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -12,7 +11,7 @@ import java.util.concurrent.Callable;
 /**
  * Created by robert on 2015-10-25 17:40.
  */
-@CommandLineTool(name="spr1-get")
+//@javax.module.CommandLineTool(name="spr1-get")
 public
 class Spr1Get implements Callable
 {

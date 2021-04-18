@@ -1,7 +1,5 @@
 package com.github.osndok.spr;
 
-import javax.module.CommandLineOption;
-import javax.module.CommandLineTool;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -14,7 +12,7 @@ import java.security.NoSuchAlgorithmException;
 /**
  * Created by robert on 2015-10-24 23:54.
  */
-@CommandLineTool(name = "sha1repo", description = "basic/local sha1 content-addressed-storage proof-of-concept tool")
+//@javax.module.CommandLineTool(name = "sha1repo", description = "basic/local sha1 content-addressed-storage proof-of-concept tool")
 public
 class Sha1Repo
 {
@@ -35,7 +33,7 @@ class Sha1Repo
 	private
 	boolean gitCompatible;
 
-	@CommandLineOption(_long = "git", _short = 'g')
+	//@javax.module.CommandLineOption(_long = "git", _short = 'g')
 	public
 	void useGitFormat()
 	{

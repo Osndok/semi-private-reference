@@ -3,12 +3,10 @@ package com.github.osndok.spr;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 
-import javax.module.CommandLineTool;
-
 /**
  * Created by robert on 2015-10-25 01:44.
  */
-@CommandLineTool(name="spr1-key")
+//@javax.module.CommandLineTool(name="spr1-key")
 public
 class Spr1Key extends Spr1Fragment
 {
