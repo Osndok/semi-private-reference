@@ -47,7 +47,17 @@ class Sha1RepoTest extends Assert
 	byte[] TEST_DATA="hello, world".getBytes();
 
 	private static final
-	byte[] EXPECTED_HASH_CODE=javax.xml.bind.DatatypeConverter.parseHexBinary("b7e23ec29af22b0b4e41da31e868d57226121c84");
+	byte[] EXPECTED_HASH_CODE = parseHexBinary("b7e23ec29af22b0b4e41da31e868d57226121c84");
+
+	public static byte[] parseHexBinary(String s) {
+		int len = s.length();
+		byte[] data = new byte[len / 2];
+		for (int i = 0; i < len; i += 2) {
+			data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
+								  + Character.digit(s.charAt(i+1), 16));
+		}
+		return data;
+	}
 
 	@Test
 	public
