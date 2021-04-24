@@ -24,6 +24,7 @@
 	<packaging>pom</packaging>
 	<modules>
 		<module>spr-common</module>
+		<module>spr-squashball</module>
 	</modules>
 
 	<name>spr</name>
