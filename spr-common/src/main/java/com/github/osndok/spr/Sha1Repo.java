@@ -30,18 +30,6 @@ class Sha1Repo
 		}
 	}
 
-	private
-	boolean gitCompatible;
-
-	//@javax.module.CommandLineOption(_long = "git", _short = 'g')
-	public
-	void useGitFormat()
-	{
-		//TODO: add "git repo" support, which might just mean adding/kerning a "blob:" prefix when hashing.
-		//gitCompatible=true;
-		throw new UnsupportedOperationException("git support is unimplemented in this version");
-	}
-
 	/**
 	 * Given a sha1 hash code (in byte form), return the name of the readable file. Or null if it does not
 	 * appear in the repository.
@@ -72,7 +60,7 @@ class Sha1Repo
 	}
 
 	/**
-	 * Given a sha1 hash code (in byte form), return the path that we would expect to find it, weither or not
+	 * Given a sha1 hash code (in byte form), return the path that we would expect to find it, whether or not
 	 * it actually exists.
 	 *
 	 * @param hash
@@ -105,17 +93,7 @@ class Sha1Repo
 		);
 
 		final
-		File retval;
-		{
-			if (gitCompatible)
-			{
-				retval=new File(innerDir, secondByte+remainingBytes);
-			}
-			else
-			{
-				retval=new File(new File(innerDir, secondByte), remainingBytes);
-			}
-		}
+		File retval=new File(new File(innerDir, secondByte), remainingBytes);
 
 		return retval;
 	}
@@ -364,5 +342,14 @@ class Sha1Repo
 			tempFile.delete();
 			throw new IOException("unable to move-after-write: mv "+tempFile+" "+destination);
 		}
+	}
+
+	public
+	boolean seemsToContain(byte[] sha1Hash) throws IOException
+	{
+		final
+		File destination=getDestination(sha1Hash);
+
+		return destination.exists();
 	}
 }
