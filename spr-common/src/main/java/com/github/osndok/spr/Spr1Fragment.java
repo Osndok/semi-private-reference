@@ -102,6 +102,7 @@ class Spr1Fragment
 		return publicString;
 	}
 
+	// TODO: rename this to getPublishHashBytes()
 	public
 	byte[] getPublicBytes()
 	{

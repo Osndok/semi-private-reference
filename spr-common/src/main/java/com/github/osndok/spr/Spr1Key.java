@@ -62,6 +62,7 @@ class Spr1Key extends Spr1Fragment
 		return privateString;
 	}
 
+	// TODO: rename this to getPrivateHashBytes()
 	public
 	byte[] getPrivateBytes()
 	{
