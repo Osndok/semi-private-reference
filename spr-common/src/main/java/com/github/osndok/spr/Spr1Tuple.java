@@ -37,12 +37,22 @@ class Spr1Tuple
     }
 
     public
-    Spr1Tuple(byte[] bytes) throws IOException
+    Spr1Tuple(byte[] clearBytes) throws IOException
     {
-        clearTextBytes = bytes;
+        clearTextBytes = clearBytes;
         privateHash = Sha1Repo.getSha1Sum(clearTextBytes);
         encryptedBytes = new Spr1Encryption(privateHash).encrypt(clearTextBytes);
         publicHash = Sha1Repo.getSha1Sum(encryptedBytes);
         spr1Key = new Spr1Key(publicHash, privateHash);
+    }
+
+    public
+    Spr1Tuple(final Spr1Key key, final byte[] encrypted)
+    {
+        privateHash = key.getPrivateBytes();
+        publicHash = key.getPublicBytes();
+        spr1Key = key;
+        encryptedBytes = encrypted;
+        clearTextBytes = new Spr1Encryption(privateHash).decrypt(encryptedBytes);
     }
 }

@@ -132,13 +132,15 @@ class Create
     }
 
     private static
-    List<SquashReader> openAll(List<String> squashballFileNames, String password)
+    List<SquashReader> openAll(List<String> squashballFileNames, String password) throws IOException
     {
         var retval = new ArrayList<SquashReader>();
 
         for (String filename : squashballFileNames)
         {
-            retval.add(new SquashReaderV1(filename, password));
+            var reader = new SquashReaderV1(filename);
+            reader.decryptTableOfContents(password);
+            retval.add(reader);
         }
 
         return retval;

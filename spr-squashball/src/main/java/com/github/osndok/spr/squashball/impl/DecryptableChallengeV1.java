@@ -5,10 +5,7 @@ import de.mkammerer.argon2.Argon2Advanced;
 import de.mkammerer.argon2.Argon2Factory;
 import org.apache.commons.codec.binary.Base64;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -27,6 +24,9 @@ class DecryptableChallengeV1
     // The number of bytes long that a sha1 hash is.
     private static final
     int KEY_LENGTH = 20;
+
+    public static final
+    String INDEX_FILE_NAME = "index.spr.v1";
 
     private final
     int iterations;
@@ -63,7 +63,7 @@ class DecryptableChallengeV1
         encryptedPrivateHash = bytewiseXOR(key.getPrivateBytes(), secretKeyMaterial);
     }
 
-    private
+    public
     Spr1Key recoverKey(final String password)
     {
         var passwordBytes = password.getBytes(StandardCharsets.UTF_8);
@@ -134,7 +134,19 @@ class DecryptableChallengeV1
     DecryptableChallengeV1 fromDirectoryEntry(Path directory) throws IOException
     {
         var p = loadProperties(getFile(directory));
+        return fromProperties(p);
+    }
 
+    public static
+    DecryptableChallengeV1 fromBytes(byte[] bytes) throws IOException
+    {
+        var p = loadProperties(bytes);
+        return fromProperties(p);
+    }
+
+    private static
+    DecryptableChallengeV1 fromProperties(final Properties p)
+    {
         var format = p.getProperty("format");
         var version = p.getProperty("version");
         var iterations = p.getProperty("iterations");
@@ -172,10 +184,23 @@ class DecryptableChallengeV1
         return retval;
     }
 
+    private static
+    Properties loadProperties(final byte[] bytes) throws IOException
+    {
+        var retval = new Properties();
+
+        try (var in = new ByteArrayInputStream(bytes))
+        {
+            retval.load(in);
+        }
+
+        return retval;
+    }
+
     public static
     File getFile(final Path directory)
     {
-        return new File(directory.toFile(), "index.spr.v1");
+        return new File(directory.toFile(), INDEX_FILE_NAME);
     }
 
     private

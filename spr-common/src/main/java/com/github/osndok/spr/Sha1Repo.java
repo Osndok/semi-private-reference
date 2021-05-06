@@ -70,17 +70,19 @@ class Sha1Repo
 	private
 	File getDestination(byte[] hash) throws IOException
 	{
-		final
-		File innerDir;
-		{
-			final
-			String firstByte=String.format("%02x", hash[0]);
+		return new File(dir, getRelativePath(hash));
+	}
 
-			innerDir=new File(dir, firstByte);
-		}
+	public static
+	String getRelativePath(final byte[] hash)
+	{
+		var sb = new StringBuilder();
 
-		final
-		String secondByte = String.format("%02x", hash[1]);
+		sb.append(String.format("%02x", hash[0]));
+		sb.append('/');
+
+		sb.append(String.format("%02x", hash[1]));
+		sb.append('/');
 
 		final
 		String remainingBytes = String.format(
@@ -92,10 +94,9 @@ class Sha1Repo
 			hash[16],hash[17],hash[18],hash[19]
 		);
 
-		final
-		File retval=new File(new File(innerDir, secondByte), remainingBytes);
+		sb.append(remainingBytes);
 
-		return retval;
+		return sb.toString();
 	}
 
 	private

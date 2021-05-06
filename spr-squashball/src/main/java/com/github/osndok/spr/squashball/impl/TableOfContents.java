@@ -1,6 +1,7 @@
 package com.github.osndok.spr.squashball.impl;
 
 import com.github.osndok.spr.Spr1Key;
+import com.github.osndok.spr.Spr1Tuple;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -20,6 +21,12 @@ class TableOfContents
 
     private final
     Random random = new Random();
+
+    public static
+    TableOfContents fromBytes(final byte[] tocBytes)
+    {
+        throw new UnsupportedOperationException("unimplemented");
+    }
 
     public
     byte[] toBytes() throws IOException
@@ -56,5 +63,11 @@ class TableOfContents
     void add(final String relativePath, final Spr1Key key)
     {
         keysByRelativePath.put(relativePath, key);
+    }
+
+    public
+    Spr1Key get(final String path)
+    {
+        throw new UnsupportedOperationException("unimplemented");
     }
 }
