@@ -3,6 +3,10 @@ package com.github.osndok.spr;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+
 /**
  * Created by robert on 2015-10-25 01:44.
  */
@@ -91,5 +95,12 @@ class Spr1Key extends Spr1Fragment
 	String toString()
 	{
 		return SUGGESTED_PREFIX+getPublicString()+getPrivateString();
+	}
+
+	public
+	void writeTo(final OutputStream out) throws IOException
+	{
+		out.write(getPublicBytes());
+		out.write(getPrivateBytes());
 	}
 }
