@@ -55,7 +55,7 @@ class Create
         var tocTuple = new Spr1Tuple(toc.toBytes());
         spr1Repo.put(tocTuple);
 
-        new DecryptableChallengeV1(tocTuple, password).writeTo(tempDirectory);
+        new DecryptableChallengeV1(tocTuple.spr1Key, password).writeTo(tempDirectory);
         makeSquashball(tempDirectory, outputFilename);
         Files.delete(tempDirectory);
     }
