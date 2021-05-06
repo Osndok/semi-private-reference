@@ -4,6 +4,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
@@ -101,5 +102,26 @@ class Spr1Key extends Spr1Fragment
 	{
 		out.write(getPublicBytes());
 		out.write(getPrivateBytes());
+	}
+
+	public static
+	Spr1Key readFrom(final InputStream in) throws IOException
+	{
+		// TODO: organize magic number
+		final int size = 20;
+		var _public = new byte[size];
+		var _private = new byte[size];
+
+		int i = in.read(_public);
+		if (i!=size)
+		{
+			throw new IOException();
+		}
+		int j = in.read(_private);
+		if (j!=size)
+		{
+			throw new IOException();
+		}
+		return new Spr1Key(_public, _private);
 	}
 }

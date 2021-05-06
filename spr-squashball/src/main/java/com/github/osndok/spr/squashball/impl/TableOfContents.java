@@ -1,12 +1,10 @@
 package com.github.osndok.spr.squashball.impl;
 
 import com.github.osndok.spr.Spr1Key;
-import com.github.osndok.spr.Spr1Tuple;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -16,6 +14,8 @@ class TableOfContents
 {
     private static final int V1_NOISE_BYTES = 256;
 
+    private static final byte[] V1_MAGIC = "SPR1-TOC-V1".getBytes(StandardCharsets.UTF_8);
+
     private final
     Map<String, Spr1Key> keysByRelativePath = new HashMap<>();
 
@@ -23,20 +23,39 @@ class TableOfContents
     Random random = new Random();
 
     public static
-    TableOfContents fromBytes(final byte[] tocBytes)
+    TableOfContents fromBytes(final byte[] tocBytes) throws IOException
     {
-        throw new UnsupportedOperationException("unimplemented");
+        var retval = new TableOfContents();
+
+        try (var in = new DataInputStream(new ByteArrayInputStream(tocBytes)))
+        {
+            readV1Noise(in);
+            readAndVerifyV1Magic(in);
+
+            int size = in.readInt();
+
+            for (int i = 0; i<size; i++)
+            {
+                var key = in.readUTF();
+                var value = Spr1Key.readFrom(in);
+                retval.add(key, value);
+            }
+
+            readV1Noise(in);
+        }
+
+        return retval;
     }
 
     public
     byte[] toBytes() throws IOException
     {
-        //first thing to write should be some random bytes (or a UUID?), to comparing encrypted bits less effective.
         try (var baos = new ByteArrayOutputStream())
         {
             try (var out = new DataOutputStream(baos))
             {
                 writeV1Noise(out);
+                out.write(V1_MAGIC);
 
                 out.writeInt(keysByRelativePath.size());
                 for (Map.Entry<String, Spr1Key> entry : keysByRelativePath.entrySet())
@@ -59,6 +78,29 @@ class TableOfContents
         out.write(bytes);
     }
 
+    private static
+    void readV1Noise(final InputStream in) throws IOException
+    {
+        var bytes = new byte[V1_NOISE_BYTES];
+        in.read(bytes);
+    }
+
+    private static
+    void readAndVerifyV1Magic(final InputStream in) throws IOException
+    {
+        final int size = V1_MAGIC.length;
+        var bytes = new byte[size];
+        int i = in.read(bytes);
+        if (i!=size)
+        {
+            throw new IOException();
+        }
+        if (Arrays.equals(bytes, V1_MAGIC))
+        {
+            throw new IOException("magic mismatch, incorrect password?");
+        }
+    }
+
     public
     void add(final String relativePath, final Spr1Key key)
     {
@@ -68,6 +110,6 @@ class TableOfContents
     public
     Spr1Key get(final String path)
     {
-        throw new UnsupportedOperationException("unimplemented");
+        return keysByRelativePath.get(path);
     }
 }
