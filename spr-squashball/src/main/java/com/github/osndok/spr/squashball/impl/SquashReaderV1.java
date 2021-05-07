@@ -116,6 +116,13 @@ class SquashReaderV1 implements SquashReader
         return getTuple(key);
     }
 
+    @Override
+    public
+    TableOfContents getTableOfContents()
+    {
+        return tableOfContents;
+    }
+
     private
     byte[] getSquashedFile(final String squashedPath) throws IOException
     {

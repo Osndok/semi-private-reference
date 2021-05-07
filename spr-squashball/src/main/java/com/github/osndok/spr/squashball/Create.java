@@ -41,14 +41,17 @@ class Create
         var outputFilename = args.remove(0);
         var helperSquashballs = openAll(args, password);
 
-        var toc = new TableOfContents();
         var tempDirectory = Files.createTempDirectory("spr1-squashball-create");
         Spr1Repo spr1Repo = new Spr1Directory(tempDirectory.toFile());
 
+        int precedence = 0;
         for (SquashReader helperSquashball : helperSquashballs)
         {
+            int p2 = helperSquashball.getTableOfContents().getPrecedence();
+            precedence = Math.max(precedence, p2+1);
             spr1Repo = new DeduplicatingSpr1RepoFilter(helperSquashball, spr1Repo);
         }
+        var toc = new TableOfContents(precedence);
 
         deepCopyAllFilesAndDirectoriesIntoRepo(sourceDirectory, spr1Repo, toc);
 

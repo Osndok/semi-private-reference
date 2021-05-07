@@ -21,18 +21,27 @@ class TableOfContents
     private final
     Map<String, Spr1Key> keysByRelativePath = new HashMap<>();
 
-    private final
+    private static final
     Random random = new Random();
+
+    private final
+    int precedence;
+
+    public
+    TableOfContents(final int precedence)
+    {
+        this.precedence = precedence;
+    }
 
     public static
     TableOfContents fromBytes(final byte[] tocBytes) throws IOException
     {
-        var retval = new TableOfContents();
-
         try (var in = new DataInputStream(new ByteArrayInputStream(tocBytes)))
         {
             readV1Noise(in);
             readAndVerifyV1Magic(in);
+            int precedence = in.readInt();
+            var retval = new TableOfContents(precedence);
 
             int size = in.readInt();
 
@@ -50,9 +59,8 @@ class TableOfContents
             }
 
             readV1Noise(in);
+            return retval;
         }
-
-        return retval;
     }
 
     public
@@ -64,6 +72,7 @@ class TableOfContents
             {
                 writeV1Noise(out);
                 out.write(V1_MAGIC);
+                out.writeInt(precedence);
 
                 out.writeInt(keysByRelativePath.size());
                 for (Map.Entry<String, Spr1Key> entry : keysByRelativePath.entrySet())
@@ -141,5 +150,11 @@ class TableOfContents
     Spr1Key get(final String path)
     {
         return keysByRelativePath.get(path);
+    }
+
+    public
+    int getPrecedence()
+    {
+        return precedence;
     }
 }
