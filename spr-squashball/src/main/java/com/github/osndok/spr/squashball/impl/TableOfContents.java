@@ -95,14 +95,31 @@ class TableOfContents
         final int size = V1_MAGIC.length;
         var bytes = new byte[size];
         int i = in.read(bytes);
+
         if (i!=size)
         {
             throw new IOException();
         }
-        if (Arrays.equals(bytes, V1_MAGIC))
+
+        if (!Arrays.equals(bytes, V1_MAGIC))
         {
+            debugPrint("incoming magic", bytes);
             throw new IOException("magic mismatch, incorrect password?");
         }
+    }
+
+    private static
+    void debugPrint(final String label, final byte[] bytes)
+    {
+        var sb = new StringBuilder(label);
+        sb.append(": ");
+
+        for (byte b : bytes)
+        {
+            sb.append(String.format("%02x", b));
+        }
+
+        System.out.println(sb.toString());
     }
 
     public

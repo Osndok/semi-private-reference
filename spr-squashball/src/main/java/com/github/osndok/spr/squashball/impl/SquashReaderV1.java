@@ -84,8 +84,16 @@ class SquashReaderV1 implements SquashReader
     boolean seemsToContain(final byte[] sha1PublicHash) throws IOException
     {
         var squashedPath = Sha1Repo.getRelativePath(sha1PublicHash);
-        var inode = squashFile.findInodeByPath(squashedPath);
-        return inode != null;
+        try
+        {
+            var inode = squashFile.findInodeByPath(squashedPath);
+            return true;
+        }
+        catch (FileNotFoundException e)
+        {
+            // TODO: optimize (using exception for expected path)
+            return false;
+        }
     }
 
     @Override
@@ -112,11 +120,6 @@ class SquashReaderV1 implements SquashReader
     byte[] getSquashedFile(final String squashedPath) throws IOException
     {
         var inode = squashFile.findInodeByPath(squashedPath);
-
-        if (inode == null)
-        {
-            return null;
-        }
 
         try (var baos = new ByteArrayOutputStream())
         {
