@@ -82,7 +82,11 @@ class TableOfContents
     void readV1Noise(final InputStream in) throws IOException
     {
         var bytes = new byte[V1_NOISE_BYTES];
-        in.read(bytes);
+        int i = in.read(bytes);
+        if (i!=V1_NOISE_BYTES)
+        {
+            throw new IOException();
+        }
     }
 
     private static
