@@ -57,12 +57,38 @@ class Create
 
         new DecryptableChallengeV1(tocTuple.spr1Key, password).writeTo(tempDirectory);
         makeSquashball(tempDirectory, outputFilename);
-        Files.delete(tempDirectory);
+        recursivelyDelete(tempDirectory.toFile());
+    }
+
+    private static
+    void recursivelyDelete(final File file) throws IOException
+    {
+        System.err.println("DELETE: "+file);
+
+        if (file.isDirectory())
+        {
+            for (File child : file.listFiles())
+            {
+                recursivelyDelete(child);
+            }
+        }
+
+        if (!file.delete())
+        {
+            throw new IOException("unable to delete: "+file);
+        }
     }
 
     private static
     void makeSquashball(final Path tempDirectory, final String outputFilename) throws InterruptedException, IOException
     {
+        var outputFile = new File(outputFilename);
+
+        if (outputFile.exists() && !outputFile.delete())
+        {
+            throw new IOException("unable to delete: "+outputFile);
+        }
+
         var cmd = new String[]{"mksquashfs", tempDirectory.toString(), outputFilename};
 
         var process = Runtime.getRuntime().exec(cmd);
@@ -74,17 +100,17 @@ class Create
             throw new RuntimeException("mksquashfs returned status "+status);
         }
 
-        var file = new File(outputFilename);
-
-        if (!file.exists())
+        if (!outputFile.exists())
         {
             throw new IOException("mksquashfs did not create output file");
         }
 
-        if (file.length() == 0)
+        if (outputFile.length() == 0)
         {
             throw new IOException("mksquashfs created an empty output file");
         }
+
+        System.err.println("Created: "+outputFile);
     }
 
     private static
