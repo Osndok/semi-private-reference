@@ -34,7 +34,7 @@ class Create
             System.exit(1);
         }
 
-        var args = Arrays.asList(argsArray);
+        var args = new ArrayList<>(Arrays.asList(argsArray));
 
         var password = readPasswordFrom(System.in);
         var sourceDirectory = new File(args.remove(0));
