@@ -25,6 +25,7 @@
 	<modules>
 		<module>spr-common</module>
 		<module>spr-squashball</module>
+		<module>spr-squashball-httpd</module>
 	</modules>
 
 	<name>spr</name>
