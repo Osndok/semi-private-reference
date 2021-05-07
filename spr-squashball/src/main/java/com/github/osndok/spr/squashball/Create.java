@@ -25,6 +25,8 @@ import java.util.List;
 public
 class Create
 {
+    private static final boolean DEBUG = Boolean.getBoolean("DEBUG");
+
     public static
     void main(String[] argsArray) throws IOException, InterruptedException
     {
@@ -66,7 +68,10 @@ class Create
     private static
     void recursivelyDelete(final File file) throws IOException
     {
-        System.err.println("DELETE: "+file);
+        if (DEBUG)
+        {
+            System.err.println("DELETE: " + file);
+        }
 
         if (file.isDirectory())
         {
@@ -113,7 +118,10 @@ class Create
             throw new IOException("mksquashfs created an empty output file");
         }
 
-        System.err.println("Created: "+outputFile);
+        if (DEBUG)
+        {
+            System.err.println("Created: "+outputFile);
+        }
     }
 
     private static
@@ -137,7 +145,10 @@ class Create
             final TableOfContents toc
     ) throws IOException
     {
-        System.err.println("Adding: "+relativePath);
+        if (DEBUG)
+        {
+            System.err.println("Adding: " + relativePath);
+        }
 
         var file =  new File(sourceDirectory, relativePath);
         if (file.isFile())

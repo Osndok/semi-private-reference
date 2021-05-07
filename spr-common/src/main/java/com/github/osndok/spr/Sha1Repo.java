@@ -16,6 +16,8 @@ import java.security.NoSuchAlgorithmException;
 public
 class Sha1Repo
 {
+	private static final boolean DEBUG = Boolean.getBoolean("DEBUG");
+
 	private final
 	File dir;
 
@@ -207,7 +209,10 @@ class Sha1Repo
 		{
 			if (destination.exists())
 			{
-				System.err.println("EXISTS: "+destination);
+				if (DEBUG)
+				{
+					System.err.println("EXISTS: " + destination);
+				}
 				return sha1Hash;
 			}
 
@@ -240,7 +245,10 @@ class Sha1Repo
 
 		if (tempFile.renameTo(destination))
 		{
-			System.err.println("PUT: "+destination);
+			if (DEBUG)
+			{
+				System.err.println("PUT: " + destination);
+			}
 			return sha1Hash;
 		}
 		else
@@ -326,7 +334,10 @@ class Sha1Repo
 		{
 			if (destination.exists())
 			{
-				System.err.println("EXISTS: "+destination);
+				if (DEBUG)
+				{
+					System.err.println("EXISTS: " + destination);
+				}
 				tempFile.delete();
 				return sha1Hash;
 			}
