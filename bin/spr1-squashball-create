@@ -1,0 +1,12 @@
+#!/bin/sh
+#
+# spr1-squashball-create
+#
+
+ME=$(realpath "$0")
+BIN=$(dirname "$ME")
+PROJECT=$(dirname "$BIN")
+
+JAR="$PROJECT/out/artifacts/spr_squashball_jar/spr-squashball.jar"
+
+exec java -jar "$JAR" "$@"
