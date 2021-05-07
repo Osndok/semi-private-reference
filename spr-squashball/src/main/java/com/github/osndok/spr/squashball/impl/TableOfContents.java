@@ -78,7 +78,7 @@ class TableOfContents
                 for (Map.Entry<String, Spr1Key> entry : keysByRelativePath.entrySet())
                 {
                     out.writeUTF(entry.getKey());
-                    out.write(MODE_SPR1_WHOLE_FILE);
+                    out.writeInt(MODE_SPR1_WHOLE_FILE);
                     entry.getValue().writeTo(out);
                 }
 
