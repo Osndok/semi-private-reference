@@ -113,6 +113,12 @@ class SquashReaderV1 implements SquashReader
         }
 
         var key = tableOfContents.get(path);
+
+        if (key == null)
+        {
+            return null;
+        }
+
         return getTuple(key);
     }
 
