@@ -16,6 +16,8 @@ class TableOfContents
 
     private static final byte[] V1_MAGIC = "SPR1-TOC-V1".getBytes(StandardCharsets.UTF_8);
 
+    private static final int MODE_SPR1_WHOLE_FILE = 1;
+
     private final
     Map<String, Spr1Key> keysByRelativePath = new HashMap<>();
 
@@ -37,8 +39,14 @@ class TableOfContents
             for (int i = 0; i<size; i++)
             {
                 var key = in.readUTF();
+                var mode = in.readInt();
                 var value = Spr1Key.readFrom(in);
                 retval.add(key, value);
+
+                if (mode != MODE_SPR1_WHOLE_FILE)
+                {
+                    throw new UnsupportedOperationException("unsupported toc mode: "+mode);
+                }
             }
 
             readV1Noise(in);
@@ -61,6 +69,7 @@ class TableOfContents
                 for (Map.Entry<String, Spr1Key> entry : keysByRelativePath.entrySet())
                 {
                     out.writeUTF(entry.getKey());
+                    out.write(MODE_SPR1_WHOLE_FILE);
                     entry.getValue().writeTo(out);
                 }
 
