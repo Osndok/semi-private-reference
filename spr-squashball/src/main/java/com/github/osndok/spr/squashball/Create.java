@@ -44,25 +44,31 @@ class Create
         var helperSquashballs = openAll(args, password);
 
         var tempDirectory = Files.createTempDirectory("spr1-squashball-create");
-        Spr1Repo spr1Repo = new Spr1Directory(tempDirectory.toFile());
-
-        int precedence = 0;
-        for (SquashReader helperSquashball : helperSquashballs)
+        try
         {
-            int p2 = helperSquashball.getTableOfContents().getPrecedence();
-            precedence = Math.max(precedence, p2+1);
-            spr1Repo = new DeduplicatingSpr1RepoFilter(helperSquashball, spr1Repo);
+            Spr1Repo spr1Repo = new Spr1Directory(tempDirectory.toFile());
+
+            int precedence = 0;
+            for (SquashReader helperSquashball : helperSquashballs)
+            {
+                int p2 = helperSquashball.getTableOfContents().getPrecedence();
+                precedence = Math.max(precedence, p2 + 1);
+                spr1Repo = new DeduplicatingSpr1RepoFilter(helperSquashball, spr1Repo);
+            }
+            var toc = new TableOfContents(precedence);
+
+            deepCopyAllFilesAndDirectoriesIntoRepo(sourceDirectory, spr1Repo, toc);
+
+            var tocTuple = new Spr1Tuple(toc.toBytes());
+            spr1Repo.put(tocTuple);
+
+            new DecryptableChallengeV1(tocTuple.spr1Key, password).writeTo(tempDirectory);
+            makeSquashball(tempDirectory, outputFilename);
         }
-        var toc = new TableOfContents(precedence);
-
-        deepCopyAllFilesAndDirectoriesIntoRepo(sourceDirectory, spr1Repo, toc);
-
-        var tocTuple = new Spr1Tuple(toc.toBytes());
-        spr1Repo.put(tocTuple);
-
-        new DecryptableChallengeV1(tocTuple.spr1Key, password).writeTo(tempDirectory);
-        makeSquashball(tempDirectory, outputFilename);
-        recursivelyDelete(tempDirectory.toFile());
+        finally
+        {
+            recursivelyDelete(tempDirectory.toFile());
+        }
     }
 
     private static

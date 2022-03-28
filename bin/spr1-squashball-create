@@ -2,6 +2,8 @@
 #
 # spr1-squashball-create
 #
+# usage: echo $SECRET | spr1-squashball-create /input/directory /output.sqr1 [/reference.spr1 ...]
+#
 
 ME=$(realpath "$0")
 BIN=$(dirname "$ME")
