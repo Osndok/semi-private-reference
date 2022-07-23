@@ -29,11 +29,26 @@ class Spr1Tuple
     public
     Spr1Tuple(File file) throws IOException
     {
+        _reportIncreasingFileSizes(file);
         clearTextBytes = Files.readAllBytes(file.toPath());
         privateHash = Sha1Repo.getSha1Sum(clearTextBytes);
         encryptedBytes = new Spr1Encryption(privateHash).encrypt(clearTextBytes);
         publicHash = Sha1Repo.getSha1Sum(encryptedBytes);
         spr1Key = new Spr1Key(publicHash, privateHash);
+    }
+
+    private static
+    long largestFileSizeSoFar = 0;
+
+    private static
+    void _reportIncreasingFileSizes(final File file)
+    {
+        var numBytes = file.length();
+        if (numBytes > largestFileSizeSoFar)
+        {
+            System.err.printf("%s @ %d bytes\n", file, numBytes);
+            largestFileSizeSoFar = numBytes;
+        }
     }
 
     public

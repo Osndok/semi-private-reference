@@ -39,6 +39,13 @@ class Create
         var args = new ArrayList<>(Arrays.asList(argsArray));
 
         var password = readPasswordFrom(System.in);
+
+        if (password == null)
+        {
+            System.err.println("Unable to read password from stdin");
+            System.exit(1);
+        }
+
         var sourceDirectory = new File(args.remove(0));
         var outputFilename = args.remove(0);
         var helperSquashballs = openAll(args, password);
@@ -157,8 +164,21 @@ class Create
         }
 
         var file =  new File(sourceDirectory, relativePath);
+
+        if (shouldIgnore(file))
+        {
+            if (DEBUG)
+            {
+                System.err.println(file+": ignored");
+            }
+            return;
+        }
+
         if (file.isFile())
         {
+            // TODO: Handle huge files better (split? stream?).
+            // NB: This reads the WHOLE file into memory, so... hopefully the largest file you want to archive
+            // fits comfortably in the available RAM.
             var tuple = new Spr1Tuple(file);
             spr1Repo.put(tuple);
             toc.add(relativePath, tuple.spr1Key);
@@ -175,6 +195,12 @@ class Create
         {
             throw new UnsupportedOperationException("not a file or directory: "+file);
         }
+    }
+
+    private static
+    boolean shouldIgnore(final File file)
+    {
+        return file.getName().equals(".git");
     }
 
     private static
@@ -197,6 +223,10 @@ class Create
     {
         try (var br = new BufferedReader(new InputStreamReader(inputStream)))
         {
+            if (DEBUG)
+            {
+                System.err.println("Blocking to read password...");
+            }
             return br.readLine();
         }
     }
