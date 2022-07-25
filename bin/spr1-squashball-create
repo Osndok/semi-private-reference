@@ -9,6 +9,9 @@ ME=$(realpath "$0")
 BIN=$(dirname "$ME")
 PROJECT=$(dirname "$BIN")
 
-JAR="$PROJECT/out/artifacts/spr_squashball_jar/spr-squashball.jar"
+#JAR="$PROJECT/out/artifacts/spr_squashball_jar/spr-squashball.jar"
+JAR="$PROJECT/spr-squashball/target/spr1-squashball-create.jar"
+
+test -e "$JAR" || ( cd "$PROJECT" && mvn package)
 
 exec java -jar "$JAR" "$@"
